@@ -20,7 +20,7 @@ const PreLoader = ({ onComplete }) => {
 
   return (
     <div className="fixed inset-0 flex flex-col items-center justify-center bg-gray-900 text-white z-50">
-      <h1 className="text-4xl font-bold mb-4 animate-fade-in">Urban Cleaning</h1>
+      <h1 className="text-4xl font-bold mb-4 animate-fade-in">ASAP</h1>
       <div className="w-64 h-2 bg-gray-700 rounded-full overflow-hidden">
         <div
           className="h-full bg-yellow-500 transition-all duration-200"
