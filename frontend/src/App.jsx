@@ -1,10 +1,18 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Navbar from "./component/LandingPage/Home/Navbar";
+import Home from "./component/LandingPage/Home";
 import "./App.css";
 
 function App() {
   return (
-    <>
-      <h1>Hello User</h1>
-    </>
+    <Router>
+      <div className="min-h-screen">
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
