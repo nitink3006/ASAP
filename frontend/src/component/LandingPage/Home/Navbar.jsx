@@ -35,7 +35,7 @@ const Navbar = () => {
         {/* Logo */}
         <Link to='/'>
         <h1 className="text-2xl font-bold tracking-wide">
-          UrbanClean
+          ASAP
         </h1>
         </Link>
 
