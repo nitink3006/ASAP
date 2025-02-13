@@ -33,9 +33,11 @@ const Navbar = () => {
     <nav className="bg-white text-black shadow-md p-4 fixed top-0 w-full z-50 border-b border-gray-200">
       <div className="container mx-auto flex items-center justify-between px-6 lg:px-25">
         {/* Logo */}
+        <Link to='/'>
         <h1 className="text-2xl font-bold tracking-wide">
           UrbanClean
         </h1>
+        </Link>
 
         {/* Search Bars */}
         <div className="hidden md:flex items-center space-x-6">
