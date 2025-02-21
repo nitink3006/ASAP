@@ -2,11 +2,14 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { FaUser, FaLock } from "react-icons/fa";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
+import Navbar from "./Home/Navbar";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
+    <>
+    <Navbar />
     <div className="min-h-screen flex items-center justify-center bg-white relative">
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-white" 
@@ -66,6 +69,7 @@ const Login = () => {
         </p>
       </div>
     </div>
+    </>
   );
 };
 
