@@ -1,5 +1,6 @@
 import React from "react";
 import Clean from "../../../assets/Clean.jpeg";
+import { FaStar, FaGlobe } from "react-icons/fa";
 import AC from "../../../assets/AC.jpeg";
 import Bed from "../../../assets/bed.jpeg";
 import Spa from "../../../assets/spa.jpeg";
@@ -30,6 +31,23 @@ const Banner = () => {
       {/* Background Design Elements */}
       <div className="absolute top-10 left-0 w-40 h-40 bg-blue-100 rounded-full opacity-50 blur-2xl"></div>
       <div className="absolute bottom-10 right-0 w-40 h-40 bg-gray-100 rounded-full opacity-50 blur-2xl"></div>
+      <div className="absolute bottom-5  flex items-center space-x-14  p-4  border-gray-200">
+      <div className="flex flex-col items-center text-gray-900 font-semibold">
+          <div className="flex items-center space-x-2 text-4xl">
+            <FaStar className="text-yellow-500" />
+            <span>4.5</span>
+          </div>
+          <span className="text-sm items-center text-gray-600">Service Rating</span>
+        </div>
+        <div className="flex flex-col items-center text-gray-900 font-semibold">
+        <div className="flex items-center space-x-2 text-4xl">
+
+          <FaGlobe className="text-blue-500" />
+          <span>10K+</span>
+          </div>
+          <span className="text-sm items-center text-gray-600">Customers</span>
+        </div>
+        </div>
     </div>
   );
 };
