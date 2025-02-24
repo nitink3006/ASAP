@@ -10,6 +10,7 @@ import Order from "./component/AdminDashboard/Order";
 import AddCategory from "./component/AdminDashboard/AddCategory";
 import AddService from "./component/AdminDashboard/AddService";
 import RemoveService from "./component/AdminDashboard/RemoveService";
+import Contact from "./component/Contact";
 
 // Layout Components
 const LayoutWithNavbar = ({ children }) => (
@@ -40,6 +41,7 @@ function App() {
               </LayoutWithNavbar>
             }
           />
+
           <Route
             path="/signup"
             element={
@@ -48,7 +50,7 @@ function App() {
               </LayoutWithNavbar>
             }
           />
-
+          <Route path="/contact" element={<Contact />} />
           {/* Routes without Navbar */}
           {[
             "/login",

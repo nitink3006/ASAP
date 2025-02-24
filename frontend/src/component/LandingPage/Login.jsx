@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { FaUser, FaLock } from "react-icons/fa";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 import Navbar from "./Home/Navbar";
+import Footer from "./Home/Footer";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -11,7 +12,6 @@ const Login = () => {
     <>
     <Navbar />
     <div className="min-h-screen flex items-center justify-center bg-white relative">
-      {/* Background Pattern */}
       <div className="absolute inset-0 bg-white" 
            style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/white-wall.png')" }}>
       </div>
@@ -69,6 +69,7 @@ const Login = () => {
         </p>
       </div>
     </div>
+    <Footer />
     </>
   );
 };
