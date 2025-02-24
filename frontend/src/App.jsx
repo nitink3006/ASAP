@@ -19,6 +19,7 @@ const LayoutWithNavbar = ({ children }) => (
     <div className="content">{children}</div>
   </>
 );
+
 const LayoutWithoutNavbar = ({ children }) => (
   <div className="content">{children}</div>
 );
@@ -41,7 +42,6 @@ function App() {
               </LayoutWithNavbar>
             }
           />
-
           <Route
             path="/signup"
             element={
@@ -51,14 +51,9 @@ function App() {
             }
           />
           <Route path="/contact" element={<Contact />} />
+
           {/* Routes without Navbar */}
-          {[
-            "/login",
-            "/order",
-            "/add-category",
-            "/add-service",
-            "/remove-service",
-          ].map((path) => (
+          {["/login", "/order", "/add-category", "/add-service", "/remove-service"].map((path) => (
             <Route
               key={path}
               path={path}
