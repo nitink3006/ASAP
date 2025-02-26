@@ -7,6 +7,7 @@ import Footer from "./Home/Footer";
 import Config from "../../Config";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; 
+import Navbar from "./Home/Navbar";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -89,6 +90,7 @@ const Signup = () => {
 
   return (
     <>
+          <Navbar />
           <ToastContainer />
       <div className="min-h-screen flex items-center justify-center bg-white relative">
         <div
