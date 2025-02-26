@@ -1,7 +1,7 @@
 import React from 'react';
 import Navbar from './LandingPage/Home/Navbar';
 import Footer from './LandingPage/Home/Footer';
-
+// contact page work left
 const Contact = () => {
   return (
     <>
