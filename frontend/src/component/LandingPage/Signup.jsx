@@ -5,15 +5,17 @@ import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 import { MdMyLocation } from "react-icons/md";
 import Footer from "./Home/Footer";
 import Config from "../../Config";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; 
 
 const Signup = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    fullName: "",
-    phoneNumber: "",
+    name: "",
+    phone: "",
     address: "",
-    flat: "",
+    flat_building: "",
     landmark: "",
     city: "",
     pincode: "",
@@ -60,11 +62,21 @@ const Signup = () => {
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(formData),
       });
-
+      const data = await response.json();
       if (response.ok) {
-        const result = await response.json();
-        localStorage.setItem("user", JSON.stringify(result));
-        navigate("/dashboard");
+        if (response.ok) {
+          localStorage.setItem("user", JSON.stringify(data));
+          toast.success("Signup Successful!", { position: "top-right", autoClose: 1000 });
+          setTimeout(() => {
+            if (data.user_type === "customer") {
+              navigate("/");
+            } else if (data.user_type === "admin") {
+              navigate("/dashboard");
+            } else {
+              setError("Invalid user type");
+            }
+          }, 2500);
+        }
       } else {
         const errorData = await response.json();
         alert(`Signup failed: ${errorData.detail || "Unknown error"}`);
@@ -77,6 +89,7 @@ const Signup = () => {
 
   return (
     <>
+          <ToastContainer />
       <div className="min-h-screen flex items-center justify-center bg-white relative">
         <div
           className="absolute inset-0 bg-white"
@@ -96,8 +109,8 @@ const Signup = () => {
                   <FaUser className="text-gray-500 mr-2" />
                   <input
                     type="text"
-                    name="fullName"
-                    value={formData.fullName}
+                    name="name"
+                    value={formData.name}
                     onChange={handleChange}
                     placeholder="Enter your full name"
                     className="w-full outline-none bg-transparent"
@@ -112,8 +125,8 @@ const Signup = () => {
                   <FaPhone className="text-gray-500 mr-2" />
                   <input
                     type="number"
-                    name="phoneNumber"
-                    value={formData.phoneNumber}
+                    name="phone"
+                    value={formData.phone}
                     onChange={handleChange}
                     placeholder="Enter your phone number"
                     className="w-full outline-none bg-transparent"
@@ -150,8 +163,8 @@ const Signup = () => {
                 <label className="block text-gray-700 font-medium mb-2">Flat / Building Name</label>
                 <input
                   type="text"
-                  name="flat"
-                  value={formData.flat}
+                  name="flat_building"
+                  value={formData.flat_building}
                   onChange={handleChange}
                   placeholder="Flat / Building Name"
                   className="w-full border rounded-lg p-2 bg-gray-100 outline-none"
