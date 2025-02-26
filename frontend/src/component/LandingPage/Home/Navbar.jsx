@@ -2,15 +2,27 @@ import { useState, useEffect, useRef } from "react";
 import { FaShoppingCart, FaSearch } from "react-icons/fa";
 import { IoMdMenu, IoMdClose } from "react-icons/io";
 import { MdLocationOn } from "react-icons/md";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link, useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [location, setLocation] = useState("");
   const [service, setService] = useState("");
   const [locationSuggestions, setLocationSuggestions] = useState([]);
+  const [user, setUser] = useState(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const locationInputRef = useRef(null);
   const currentRoute = useLocation().pathname;
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Fetch user details from local storage
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (storedUser) {
+      setUser(storedUser);
+    }
+  }, []);
+  console.log(user)
 
   useEffect(() => {
     const fetchLocations = async (query) => {
@@ -29,69 +41,61 @@ const Navbar = () => {
     }
   }, [location]);
 
+  const handleLogout = () => {
+    localStorage.clear(); // Clear everything from local storage
+    setUser(null);
+    navigate("/"); // Navigate to home after logout
+  };
+
   return (
     <nav className="bg-white text-black shadow-md p-4 fixed top-0 w-full z-50 border-b border-gray-200">
-      <div className="container mx-auto flex items-center justify-between px-6 lg:px-25">
+      <div className="container mx-auto flex items-center justify-between md:px-0 lg:px-16">
         {/* Logo */}
-        <Link to='/'>
-        <h1 className="text-2xl font-bold tracking-wide">
-          ASAP
-        </h1>
+        <Link to="/">
+          <h1 className="text-2xl font-bold tracking-wide">ASAP</h1>
         </Link>
 
-        {/* Search Bars */}
-        <div className="hidden md:flex items-center space-x-6">
-          {/* Location Search */}
-          <div className="relative">
-            <div className="flex items-center bg-gray-100 px-4 py-2 rounded-md w-64 shadow-sm border border-gray-300">
-              <MdLocationOn className="text-black mr-2 text-lg" />
-              <input
-                ref={locationInputRef}
-                type="text"
-                placeholder="Enter location..."
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                className="w-full bg-transparent outline-none text-gray-500 placeholder-gray-500"
-              />
-            </div>
-            {/* Location Suggestions Dropdown */}
-            {locationSuggestions.length > 0 && (
-              <ul className="absolute bg-white border border-gray-300 shadow-lg rounded-md w-full mt-2 max-h-40 overflow-y-auto z-10 text-black">
-                {locationSuggestions.map((suggestion, index) => (
-                  <li
-                    key={index}
-                    className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                    onClick={() => {
-                      setLocation(suggestion);
-                      setLocationSuggestions([]);
-                    }}
-                  >
-                    {suggestion}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+<div className="hidden md:flex flex-wrap items-center space-x-6 w-fit md:max-w-96 lg:max-w-3xl">
+  {/* Location Search */}
+  <div className="relative flex-1 min-w-[100px] max-w-[250px] sm:max-w-[180px] md:max-w-[250px]">
+    <div className="flex items-center bg-gray-100 px-3 py-2 rounded-md shadow-sm border border-gray-300">
+      <MdLocationOn className="text-black mr-2 text-lg" />
+      <input
+        ref={locationInputRef}
+        type="text"
+        placeholder="Enter location..."
+        value={location}
+        onChange={(e) => setLocation(e.target.value)}
+        className="w-full bg-transparent outline-none text-gray-500 placeholder-gray-500"
+      />
+    </div>
+  </div>
 
-          {/* Services Search */}
-          <div className="flex items-center bg-gray-100 px-4 py-2 rounded-md w-64 shadow-sm border border-gray-300">
-            <FaSearch className="text-black mr-2 text-lg" />
-            <input
-              type="text"
-              placeholder="Search services..."
-              value={service}
-              onChange={(e) => setService(e.target.value)}
-              className="w-full bg-transparent outline-none text-gray-500 placeholder-gray-500"
-            />
-          </div>
-        </div>
+  {/* Services Search */}
+  <div className="flex-1 min-w-[100px] max-w-[250px] sm:max-w-[180px] md:max-w-[250px]">
+    <div className="flex items-center bg-gray-100 px-3 py-2 rounded-md shadow-sm border border-gray-300">
+      <FaSearch className="text-black mr-2 text-lg" />
+      <input
+        type="text"
+        placeholder="Search services..."
+        value={service}
+        onChange={(e) => setService(e.target.value)}
+        className="w-full bg-transparent outline-none text-gray-500 placeholder-gray-500"
+      />
+    </div>
+  </div>
+</div>
+
+
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center space-x-8 text-lg font-medium">
           <Link
             to="/"
             className={`relative transition duration-300 ${
-              currentRoute === "/" ? "text-black font-semibold border-b-2 border-black-600" : "text-gray-500 hover:text-black"
+              currentRoute === "/"
+                ? "text-black font-semibold border-b-2 border-black-600"
+                : "text-gray-500 hover:text-black"
             }`}
           >
             Home
@@ -103,20 +107,55 @@ const Navbar = () => {
               }`}
             />
           </Link>
-          <Link
-            to="/login"
-            className={`relative transition duration-300 ${
-              currentRoute === "/login" ? "text-black font-semibold border-b-2 border-black" : "text-gray-500 hover:text-black"
-            }`}
-          >
-            Login
-          </Link>
+
+          {user ? (
+            <div className="relative">
+              <button
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="relative flex items-center cursor-pointer justify-center w-10 h-10 bg-gray-300 rounded-full text-lg font-semibold text-black"
+              >
+                {user.customer.name.charAt(0).toUpperCase()}
+              </button>
+
+              {dropdownOpen && (
+                <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-300 rounded-md shadow-lg py-2 text-black">
+                  <Link
+                    to="/help-center"
+                    className="block px-4 py-2 hover:bg-gray-100"
+                  >
+                    Help Center
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <Link
+              to="/login"
+              className={`relative transition duration-300 ${
+                currentRoute === "/login"
+                  ? "text-black font-semibold border-b-2 border-black"
+                  : "text-gray-500 hover:text-black"
+              }`}
+            >
+              Login
+            </Link>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
-        <button className="md:hidden text-2xl text-gray-700" onClick={() => setMenuOpen(!menuOpen)}>
-          {menuOpen ? <IoMdClose /> : <IoMdMenu />}
-        </button>
+<button
+  className="md:hidden text-2xl text-gray-700 flex items-center"
+  onClick={() => setMenuOpen(!menuOpen)}
+>
+  {menuOpen ? <IoMdClose className="text-3xl text-black" /> : <IoMdMenu className="text-3xl text-black" />}
+</button>
+
       </div>
 
       {/* Mobile Menu */}
@@ -136,11 +175,38 @@ const Navbar = () => {
             onChange={(e) => setService(e.target.value)}
             className="px-4 py-2 w-64 rounded-md bg-gray-100 border border-gray-300 text-black placeholder-gray-500"
           />
-          <Link to="/" className="text-lg text-gray-700 hover:text-blue-600 transition">Home</Link>
+          <Link
+            to="/"
+            className="text-lg text-gray-700 hover:text-blue-600 transition"
+          >
+            Home
+          </Link>
           <Link to="/cart">
             <FaShoppingCart className="text-2xl cursor-pointer text-gray-700 hover:text-blue-600 transition" />
           </Link>
-          <Link to="/login" className="text-lg text-gray-700 hover:text-blue-600 transition">Login</Link>
+          {user ? (
+            <>
+              <Link
+                to="/help-center"
+                className="text-lg text-gray-700 hover:text-blue-600 transition"
+              >
+                Help Center
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="text-lg text-gray-700 hover:text-red-600 transition"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <Link
+              to="/login"
+              className="text-lg text-gray-700 hover:text-blue-600 transition"
+            >
+              Login
+            </Link>
+          )}
         </div>
       )}
     </nav>
