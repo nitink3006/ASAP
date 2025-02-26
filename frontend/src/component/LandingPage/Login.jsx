@@ -38,8 +38,8 @@ const Login = () => {
         setTimeout(() => {
           if (data.user_type === "customer") {
             navigate("/");
-          } else if (data.user_type === "admin") {
-            navigate("/dashboard");
+          } else if (data.user_type === "owner") {
+            navigate("/order");
           } else {
             setError("Invalid user type");
           }
