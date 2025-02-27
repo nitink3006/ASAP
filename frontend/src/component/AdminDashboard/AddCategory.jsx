@@ -7,36 +7,24 @@ import {
 } from "react-icons/fi";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
+import Config from "../../Config";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AddCategory = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [selectedService, setSelectedService] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [categoryName, setCategoryName] = useState("");
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const fileInputRef = useRef(null);
+  const S = JSON.parse(localStorage.getItem("user"));
+  const token = S.token;
+  console.log("Data", S);
 
-  const [categories, setCategories] = useState([
-    {
-      id: 1,
-      service: "Web Development",
-      category: "Frontend",
-      image: "https://via.placeholder.com/50",
-    },
-    {
-      id: 2,
-      service: "Graphic Design",
-      category: "Logo Design",
-      image: "https://via.placeholder.com/50",
-    },
-    {
-      id: 3,
-      service: "Digital Marketing",
-      category: "SEO",
-      image: "https://via.placeholder.com/50",
-    },
-  ]);
+  const [categories, setCategories] = useState([]);
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
@@ -68,33 +56,66 @@ const AddCategory = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedService || !categoryName) return;
+    setLoading(true);
+    setError("");
 
-    const newCategory = {
-      id: Date.now(),
-      service: selectedService,
-      category: categoryName,
-      image: preview || "https://via.placeholder.com/50",
-    };
+    const formData = new FormData();
+    formData.append("name", categoryName);
+    if (image) {
+      formData.append("images", image);
+    }
 
-    setCategories([...categories, newCategory]);
-    setSelectedService("");
-    setCategoryName("");
-    setImage(null);
-    setPreview("");
+    try {
+      const response = await fetch(`${Config.API_URL}/service-categories/`, {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: `Token ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success("Category added successfully!", {
+          position: "top-right",
+          autoClose: 1000,
+        });
+
+        // Reset form
+        setCategoryName("");
+        setImage(null);
+        setPreview("");
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+      } else {
+        setError(data.message || "Failed to add category.");
+        toast.error(data.message || "Failed to add category.", {
+          position: "top-right",
+        });
+      }
+    } catch (err) {
+      setError("Something went wrong. Please try again.");
+      toast.error("Something went wrong. Please try again.", {
+        position: "top-right",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDelete = (id) => {
     setCategories(categories.filter((category) => category.id !== id));
   };
 
-  // Filter categories based on search input
-  const filteredCategories = categories.filter(
+  // Ensure categories is an array and filter safely
+  const filteredCategories = (categories || []).filter(
     (cat) =>
-      cat.service.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      cat.category.toLowerCase().includes(searchQuery.toLowerCase())
+      cat?.service?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      cat?.category?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Pagination logic
@@ -104,6 +125,44 @@ const AddCategory = () => {
     startIndex,
     startIndex + itemsPerPage
   );
+
+  useEffect(() => {
+    fetch(`${Config.API_URL}/service-categories/`, {
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch categories");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        // Transform the data to match expected structure
+        const transformedData = data.map((cat) => ({
+          id: cat.id,
+          category: cat.name, // Change 'name' to 'category' as expected in JSX
+          image: cat.images, // Change 'images' to 'image' as expected in JSX
+        }));
+
+        setCategories(transformedData);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching categories:", error);
+        setError(error.message);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading && categories.length === 0) {
+    return <div className="text-center p-6">Loading categories...</div>;
+  }
+
+  if (error && categories.length === 0) {
+    return <div className="text-center p-6 text-red-600">Error: {error}</div>;
+  }
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -115,26 +174,12 @@ const AddCategory = () => {
           }`}
         >
           <Header toggleSidebar={toggleSidebar} />
+          <ToastContainer />
           <div className="p-6 max-w-4xl mx-auto bg-white shadow-xl rounded-xl mt-10">
             <h2 className="text-4xl font-extrabold text-gray-900 mb-8 text-center">
               Add New Category
             </h2>
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label className="block text-gray-700 font-medium mb-2">
-                  Select Service
-                </label>
-                <select
-                  value={selectedService}
-                  onChange={(e) => setSelectedService(e.target.value)}
-                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-gray-400 focus:outline-none"
-                >
-                  <option value="">-- Select Service --</option>
-                  <option value="Web Development">Web Development</option>
-                  <option value="Graphic Design">Graphic Design</option>
-                  <option value="Digital Marketing">Digital Marketing</option>
-                </select>
-              </div>
               <div>
                 <label className="block text-gray-700 font-medium mb-2">
                   Category Name
@@ -180,7 +225,7 @@ const AddCategory = () => {
               </div>
               <button
                 type="submit"
-                className="w-full bg-gray-700 text-white p-3 rounded-lg hover:bg-gray-800 transition"
+                className="w-full bg-gray-700 text-white p-3 rounded-lg hover:bg-gray-800 transition cursor-pointer"
               >
                 Add Category
               </button>
@@ -210,37 +255,43 @@ const AddCategory = () => {
               <table className="w-full border-collapse shadow-lg rounded-lg overflow-hidden">
                 <thead className="bg-gray-800 text-white">
                   <tr>
-                    <th className="p-4 text-left">Service</th>
                     <th className="p-4 text-left">Category</th>
                     <th className="p-4 text-center">Image</th>
                     <th className="p-4 text-center">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {displayedCategories.map((cat) => (
-                    <tr
-                      key={cat.id}
-                      className="border-b hover:bg-gray-100 transition"
-                    >
-                      <td className="p-4">{cat.service}</td>
-                      <td className="p-4">{cat.category}</td>
-                      <td className="p-4 text-center">
-                        <img
-                          src={cat.image}
-                          alt="Category"
-                          className="w-12 h-12 rounded-lg mx-auto"
-                        />
-                      </td>
-                      <td className="p-4 text-center">
-                        <button
-                          onClick={() => handleDelete(cat.id)}
-                          className="bg-red-600 text-white p-2 rounded-md hover:bg-red-700 transition"
-                        >
-                          <FiTrash2 />
-                        </button>
+                  {displayedCategories.length > 0 ? (
+                    displayedCategories.map((cat) => (
+                      <tr
+                        key={cat.id}
+                        className="border-b hover:bg-gray-100 transition"
+                      >
+                        <td className="p-4">{cat.category}</td>
+                        <td className="p-4 text-center">
+                          <img
+                            src={cat.image}
+                            alt="Category"
+                            className="w-12 h-12 rounded-lg mx-auto"
+                          />
+                        </td>
+                        <td className="p-4 text-center">
+                          <button
+                            onClick={() => handleDelete(cat.id)}
+                            className="bg-red-600 text-white p-2 rounded-md hover:bg-red-700 transition"
+                          >
+                            <FiTrash2 />
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="4" className="p-4 text-center text-gray-500">
+                        No Categories found
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>

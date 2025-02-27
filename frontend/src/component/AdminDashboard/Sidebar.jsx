@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   FolderIcon,
   PlusIcon,
@@ -13,8 +13,11 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const Sidebar = ({ isCollapsed, toggleSidebar }) => {
+  const navigate = useNavigate();
   const handleLogout = () => {
-    window.location.href = "/login";
+    localStorage.removeItem("user");
+
+    navigate("/login");
   };
 
   return (
@@ -65,6 +68,20 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
           </NavLink>
 
           <NavLink
+            to="/sub-category"
+            className={({ isActive }) =>
+              `flex items-center py-3 px-4 rounded transition-colors duration-300 ${
+                isActive
+                  ? "bg-white text-black"
+                  : "text-white hover:bg-[#6B7280]"
+              }`
+            }
+          >
+            <PlusIcon className="h-5 w-5 mr-2 text-black" />
+            <span>Sub Category</span>
+          </NavLink>
+
+          <NavLink
             to="/add-service"
             className={({ isActive }) =>
               `flex items-center py-3 px-4 rounded transition-colors duration-300 ${
@@ -100,7 +117,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
         <div className="mt-auto flex flex-col mb-20 md:mb-0">
           <button
             onClick={handleLogout}
-            className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md flex items-center justify-center mt-2"
+            className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md flex items-center justify-center mt-2 cursor-pointer"
           >
             <ArrowRightOnRectangleIcon className="h-5 w-5 mr-2" />
             <span>Log Out</span>

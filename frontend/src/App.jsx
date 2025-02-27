@@ -12,6 +12,7 @@ import RemoveService from "./component/AdminDashboard/RemoveService";
 import Contact from "./component/Contact";
 import HelpCenter from "./component/LandingPage/Home/HelpCenter";
 import ServicePage from "./component/LandingPage/Home/ServicePage";
+import SubCategory from "./component/AdminDashboard/SubCategory";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -33,6 +34,7 @@ function App() {
           <Route path="/add-category" element={<AddCategory />} />
           <Route path="/add-service" element={<AddService />} />
           <Route path="/remove-service" element={<RemoveService />} />
+          <Route path="/sub-category" element={<SubCategory />} />
         </Routes>
       </div>
     </Router>
