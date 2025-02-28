@@ -75,7 +75,7 @@ const Login = () => {
                 <FaUser className="text-gray-500 mr-2" />
                 <input
                   type="text"
-                  placeholder="Enter your Username"
+                  placeholder="Enter your Phone Number"
                   className="w-full outline-none bg-transparent"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
