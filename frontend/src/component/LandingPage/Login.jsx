@@ -70,12 +70,12 @@ const Login = () => {
 
           <form className="mt-6" onSubmit={handleSubmit}>
             <div className="mb-4">
-              <label className="block text-gray-700 font-medium mb-2">Username</label>
+              <label className="block text-gray-700 font-medium mb-2">Mobile Number</label>
               <div className="flex items-center border rounded-lg p-2 bg-gray-100">
                 <FaUser className="text-gray-500 mr-2" />
                 <input
                   type="text"
-                  placeholder="Enter your Phone Number"
+                  placeholder="Enter your Mobile Number"
                   className="w-full outline-none bg-transparent"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
