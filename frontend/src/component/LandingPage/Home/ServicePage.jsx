@@ -1,167 +1,337 @@
-import React from "react";
-import { FaStar } from "react-icons/fa";
+import React, { useState } from "react";
+import { FaStar, FaPlus, FaMinus } from "react-icons/fa";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
+import { Link } from "react-router-dom";
 
 const services = [
-  {
-    title: "Kitchen/Bathroom",
-    image: "https://via.placeholder.com/100",
-    options: [
-      {
-        name: "Test control (includes utensil removal)",
-        rating: 4.79,
-        reviews: "98K",
-        price: "Starts at ₹1,498",
-        description: "We'll remove utensils before the service begins",
-        details: "6 options",
-      },
-      {
-        name: "Test control (excludes utensil removal)",
-        rating: 4.80,
-        reviews: "63K",
-        price: "Starts at ₹1,299",
-        description: "Treatment will be completed in 2 visits with 2 weeks. Excludes removal of utensils & objects before the service begins",
-        details: "6 options",
-      },
-    ],
-  },
-  {
-    title: "Apartment/Bungalow",
-    image: "https://via.placeholder.com/100",
-    options: [
-      {
-        name: "Apartment pest control (includes utensil removal)",
-        rating: 4.81,
-        reviews: "25K",
-        price: "Starts at ₹1,498",
-        description: "Spray treatment followed by gel treatment after 2 weeks. We'll remove utensils before the service begins",
-        details: "5 options",
-      },
-      {
-        name: "Apartment pest control (excludes utensil removal)",
-        rating: 4.81,
-        reviews: "132K",
-        price: "Starts at ₹1,299",
-        description: "Spray treatment followed by gel treatment after 2 weeks. Excludes removal of utensils & objects before the service begins",
-        details: "5 options",
-      },
-    ],
-  },
-  {
-    title: "Offices/Shops",
-    image: "https://via.placeholder.com/100",
-    options: [
-      {
-        name: "Office pest control",
-        rating: 4.64,
-        reviews: "4K",
-        price: "Starts at ₹1,649",
-        description: "Comprehensive pest control for office spaces",
-        details: "4 options",
-      },
-      {
-        name: "Retail shop pest control",
-        rating: 4.63,
-        reviews: "789",
-        price: "Starts at ₹1,649",
-        description: "Pest control solutions tailored for retail shops",
-        details: "4 options",
-      },
-    ],
-  },
+    {
+        title: "Kitchen/Bathroom",
+        image: "https://res.cloudinary.com/urbanclap/image/upload/t_high_res_template,q_auto:low,f_auto/w_64,dpr_2,fl_progressive:steep,q_auto:low,f_auto,c_limit/images/growth/luminosity/1731504494228-eb2d1d.jpeg",
+        options: [
+            {
+                name: "Test control (includes utensil removal)",
+                rating: 4.79,
+                reviews: "98K",
+                price: "Starts at ₹1,498",
+                description: [
+                    "Treatment will be completed in 2 visits with 2 weeks of gap",
+                    "We'll remove utensils before the service begins",
+                ],
+                details: "6 options",
+                image: "https://res.cloudinary.com/urbanclap/image/upload/t_high_res_template,q_auto:low,f_auto/w_128,dpr_2,fl_progressive:steep,q_auto:low,f_auto,c_limit/images/growth/luminosity/1731504272013-0ef836.jpeg", // Replace with your image URL
+            },
+            {
+                name: "Test control (excludes utensil removal)",
+                rating: 4.8,
+                reviews: "63K",
+                price: "Starts at ₹1,299",
+                description: [
+                    "Treatment will be completed in 2 visits with 2 weeks of gap",
+                    "Excludes removal of utensils & objects before the service begins",
+                ],
+                details: "6 options",
+                image: "https://res.cloudinary.com/urbanclap/image/upload/t_high_res_template,q_auto:low,f_auto/w_128,dpr_2,fl_progressive:steep,q_auto:low,f_auto,c_limit/images/growth/luminosity/1731504274912-f9181e.jpeg", // Replace with your image URL
+            },
+        ],
+    },
+    {
+        title: "Apartment/Bungalow",
+        image: "https://res.cloudinary.com/urbanclap/image/upload/t_high_res_template,q_auto:low,f_auto/w_64,dpr_2,fl_progressive:steep,q_auto:low,f_auto,c_limit/images/growth/luminosity/1731504496982-dc3ef5.jpeg",
+        options: [
+            {
+                name: "Apartment pest control (includes utensil removal)",
+                rating: 4.81,
+                reviews: "25K",
+                price: "Starts at ₹1,498",
+                description: [
+                    "Treatment will be completed in 2 visits with 2 weeks of gap",
+                    "We'll remove utensils before the service begins",
+                ],
+                details: "5 options",
+                image: "https://res.cloudinary.com/urbanclap/image/upload/t_high_res_template,q_auto:low,f_auto/w_128,dpr_2,fl_progressive:steep,q_auto:low,f_auto,c_limit/images/growth/luminosity/1738258955021-96e8b0.jpeg", // Replace with your image URL
+            },
+            {
+                name: "Apartment pest control (excludes utensil removal)",
+                rating: 4.81,
+                reviews: "132K",
+                price: "Starts at ₹1,299",
+                description: [
+                    "Treatment will be completed in 2 visits with 2 weeks of gap",
+                    "Excludes removal of utensils & objects before the service begins",
+                ],
+                details: "5 options",
+                image: "https://res.cloudinary.com/urbanclap/image/upload/t_high_res_template,q_auto:low,f_auto/w_128,dpr_2,fl_progressive:steep,q_auto:low,f_auto,c_limit/images/growth/luminosity/1738258958588-1d990f.jpeg", // Replace with your image URL
+            },
+        ],
+    },
+    {
+        title: "Offices/Shops",
+        image: "https://res.cloudinary.com/urbanclap/image/upload/t_high_res_template,q_auto:low,f_auto/w_64,dpr_2,fl_progressive:steep,q_auto:low,f_auto,c_limit/images/growth/luminosity/1731504499889-e52c37.jpeg",
+        options: [
+            {
+                name: "Office pest control",
+                rating: 4.64,
+                reviews: "4K",
+                price: "Starts at ₹1,649",
+                description: [
+                    "Treatment will be completed in 2 visits with 2 weeks of gap",
+                    "Excludes removal of utensils & objects before the service begins",
+                ],
+                details: "4 options",
+                image: "https://res.cloudinary.com/urbanclap/image/upload/t_high_res_template,q_auto:low,f_auto/w_128,dpr_2,fl_progressive:steep,q_auto:low,f_auto,c_limit/images/growth/luminosity/1731504277984-7347cb.jpeg", // Replace with your image URL
+            },
+            {
+                name: "Retail shop pest control",
+                rating: 4.63,
+                reviews: "789",
+                price: "Starts at ₹1,649",
+                description: [
+                    "Treatment will be completed in 2 visits with 2 weeks of gap",
+                    "Excludes removal of utensils & objects before the service begins",
+                ],
+                details: "4 options",
+                image: "https://res.cloudinary.com/urbanclap/image/upload/t_high_res_template,q_auto:low,f_auto/w_128,dpr_2,fl_progressive:steep,q_auto:low,f_auto,c_limit/images/growth/luminosity/1731504268966-e3811e.jpeg", // Replace with your image URL
+            },
+        ],
+    },
 ];
 
 const ServicePage = () => {
-  return (
-    <>
-      <Navbar />
-      <div className="flex p-10 mt-24 min-h-screen mx-auto">
-        {/* Left Sidebar */}
-        <div className="w-2/7 border-r pr-4">
-          <h1 className="text-3xl font-bold">Cockroach, Ant & General Pest Control</h1>
-          <div className="flex items-center text-gray-600 mt-2">
-            <FaStar className="text-purple-600" />
-            <span className="ml-1">4.84 (1.0 M bookings)</span>
-          </div>
+    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [cartItems, setCartItems] = useState([]);
 
-          {/* Service Selection */}
-          <div className="mt-6 border p-4 rounded-lg shadow">
-            <h2 className="text-lg font-semibold">Select a service</h2>
-            <div className="flex justify-between mt-4">
-              {services.map((service, index) => (
-                <div key={index} className="text-center">
-                  <img
-                    src={service.image}
-                    alt={service.title}
-                    className="w-24 h-24 rounded-lg shadow"
-                  />
-                  <p className="mt-2 text-sm">{service.title}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+    // Handle category selection
+    const handleCategorySelect = (index) => {
+        setSelectedCategory(index);
+    };
 
-        {/* Main Content */}
-        <div className="w-3/7 px-6">
-          {services.map((service, index) => (
-            <div key={index} className="mb-8">
-              <h2 className="text-2xl font-bold mb-4">{service.title}</h2>
-              {service.options.map((option, idx) => (
-                <div key={idx} className="border p-4 rounded-lg shadow mb-4">
-                  <div className="flex justify-between items-center">
-                    <h3 className="text-xl font-semibold">{option.name}</h3>
-                    <div className="flex items-center">
-                      <FaStar className="text-purple-600" />
-                      <span className="ml-1">{option.rating} ({option.reviews} reviews)</span>
+    // Handle adding a service to the cart
+    const handleAddToCart = (option) => {
+        setCartItems([...cartItems, option]);
+    };
+
+    // Filter services based on the selected category
+    const filteredServices =
+        selectedCategory !== null ? [services[selectedCategory]] : services;
+
+    // Handle quantity increase
+    const handleIncreaseQuantity = (index) => {
+        const updatedCart = [...cartItems];
+        updatedCart[index].quantity = (updatedCart[index].quantity || 1) + 1;
+        setCartItems(updatedCart);
+    };
+
+    // Handle quantity decrease
+    const handleDecreaseQuantity = (index) => {
+        const updatedCart = [...cartItems];
+        if (updatedCart[index].quantity > 1) {
+            updatedCart[index].quantity -= 1;
+            setCartItems(updatedCart);
+        }
+    };
+
+    // Calculate total price
+    const totalPrice = cartItems.reduce((total, item) => {
+        const price = parseInt(item.price.replace(/\D/g, ""), 10);
+        return total + price * (item.quantity || 1);
+    }, 0);
+
+    return (
+        <>
+            <Navbar />
+            <div className="flex p-10 mt-24 min-h-screen mx-auto">
+                {/* Left Sidebar */}
+                <div className="w-2/7 pr-4">
+                    <h1 className="text-3xl font-bold">
+                        Cockroach, Ant & General Pest Control
+                    </h1>
+                    <div className="flex items-center text-gray-600 mt-2">
+                        <FaStar className="text-purple-600" />
+                        <span className="ml-1">4.84 (1.0 M bookings)</span>
                     </div>
-                  </div>
-                  <p className="text-gray-600 mt-2">{option.price}</p>
-                  <p className="text-gray-600 mt-2">{option.description}</p>
-                  <div className="flex justify-between items-center mt-4">
-                    <button className="bg-purple-600 text-white px-4 py-2 rounded-lg">Add</button>
-                    <span className="text-gray-600">{option.details}</span>
-                    <button className="text-purple-600">View details</button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-        {/* Right Section */}
-        <div className="w-2/7 pl-4">
-          <div className="border p-4 rounded-lg shadow">
-            <h2 className="text-xl font-bold mb-4">No items in your cart</h2>
-            <div className="bg-yellow-100 p-4 rounded-lg mb-4">
-              <p className="text-yellow-800 font-semibold">Save 10% on every order</p>
-              <button className="bg-yellow-500 text-white px-4 py-2 rounded-lg mt-2">Get Plus now</button>
-            </div>
-            <button className="text-purple-600 w-full text-left">View More Offers</button>
-          </div>
 
-          <div className="mt-6 border p-4 rounded-lg shadow">
-            <h2 className="text-xl font-bold mb-4">ASAP Promise</h2>
-            <div className="space-y-2">
-              <div className="flex items-center">
-                <span className="text-green-600">✓</span>
-                <span className="ml-2">Verified Professionals</span>
-              </div>
-              <div className="flex items-center">
-                <span className="text-green-600">✓</span>
-                <span className="ml-2">Hassle Free Booking</span>
-              </div>
-              <div className="flex items-center">
-                <span className="text-green-600">✓</span>
-                <span className="ml-2">Transparent Pricing</span>
-              </div>
+                    {/* Service Selection */}
+                    <div className="mt-6 border p-4 rounded-lg shadow">
+                        <h2 className="text-lg font-semibold">
+                            Select a service
+                        </h2>
+                        <div className="flex justify-between mt-4">
+                            {services.map((service, index) => (
+                                <div
+                                    key={index}
+                                    className="text-center cursor-pointer"
+                                    onClick={() => handleCategorySelect(index)}
+                                >
+                                    <img
+                                        src={service.image}
+                                        alt={service.title}
+                                        className="w-24 h-24 rounded-lg shadow"
+                                    />
+                                    <p className="mt-2 w-24 text-sm">
+                                        {service.title}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Main Content */}
+                <div className="w-3/7 border-x border-t pt-6 px-6">
+                    {filteredServices.map((service, index) => (
+                        <div key={index} className="mb-8">
+                            <h2 className="text-2xl  font-bold mb-4">
+                                {service.title}
+                            </h2>
+                            {service.options.map((option, idx) => (
+                                <div key={idx} className="p-4 border-b flex">
+                                    <div className="flex-1">
+                                        <h3 className="text-xl font-semibold">
+                                            {option.name}
+                                        </h3>
+                                        <div className="flex items-center mt-1">
+                                            <FaStar className="text-purple-600 mr-1" />
+                                            <span className="text-sm">
+                                                {option.rating} (
+                                                {option.reviews} reviews)
+                                            </span>
+                                        </div>
+                                        <p className="text-gray-600 mt-2">
+                                            {option.price}
+                                        </p>
+                                        <ul className="list-disc list-inside mt-2">
+                                            {option.description.map(
+                                                (desc, i) => (
+                                                    <li
+                                                        key={i}
+                                                        className="text-sm text-gray-600"
+                                                    >
+                                                        {desc}
+                                                    </li>
+                                                )
+                                            )}
+                                        </ul>
+                                        <button className="text-purple-600 mt-2 text-sm">
+                                            View details
+                                        </button>
+                                    </div>
+                                    <div className="w-40 ml-4">
+                                        <img
+                                            src={option.image}
+                                            alt={option.name}
+                                            className="rounded-lg"
+                                        />
+                                        <button
+                                            className="bg-purple-600 text-white px-4 py-2 rounded-lg mt-2 text-sm block ml-auto"
+                                            onClick={() =>
+                                                handleAddToCart(option)
+                                            }
+                                        >
+                                            Add
+                                        </button>
+                                        <span className="text-gray-600 text-sm block mt-1 ml-auto">
+                                            {option.details}
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ))}
+                </div>
+
+                {/* Right Section (Cart) */}
+                <div className="w-2/7 pl-4 border-t py-12">
+                    <div className="border p-4 rounded-lg shadow">
+                        <h2 className="text-xl font-bold mb-4">Cart</h2>
+                        {cartItems.length > 0 ? (
+                            cartItems.map((item, index) => {
+                                const itemPrice =
+                                    parseInt(
+                                        item.price.replace(/\D/g, ""),
+                                        10
+                                    ) * (item.quantity || 1);
+                                return (
+                                    <div key={index} className="mb-4">
+                                        <div className="grid grid-cols-2 items-center space-x-2 justify-between">
+                                            <p className=" text-sm col-span-1">
+                                                {item.name}
+                                            </p>
+                                            <div className="col-span-1 w-full flex justify-between">
+                                                <div className="flex items-center border border-blue-400 rounded-lg w-fit bg-blue-100">
+                                                    <button
+                                                        className="text-blue-300 px-2 py-1"
+                                                        onClick={() =>
+                                                            handleDecreaseQuantity(
+                                                                index
+                                                            )
+                                                        }
+                                                    >
+                                                        <FaMinus className="w-4 h-4" />
+                                                    </button>
+                                                    <span className="mx-2">
+                                                        {item.quantity || 1}
+                                                    </span>
+                                                    <button
+                                                        className="text-blue-300 px-2 py-1"
+                                                        onClick={() =>
+                                                            handleIncreaseQuantity(
+                                                                index
+                                                            )
+                                                        }
+                                                    >
+                                                        <FaPlus className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                                <p>₹{itemPrice}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        ) : (
+                            <p className="text-gray-600">
+                                No items in your cart
+                            </p>
+                        )}
+                        <Link to="/cart">
+                            <button className="bg-purple-600 flex text-white px-4 py-2 rounded-lg mt-2 w-full hover:bg-purple-700 transition-all justify-between">
+                                <p className="text-lg col-span-1">
+                                    ₹{totalPrice}
+                                </p>
+                                View Cart
+                            </button>
+                        </Link>
+                    </div>
+
+                    <div className="mt-6 border p-4 rounded-lg shadow">
+                        <h2 className="text-xl font-bold mb-4">ASAP Promise</h2>
+                        <div className="space-y-2">
+                            <div className="flex items-center">
+                                <span className="text-green-600">✓</span>
+                                <span className="ml-2">
+                                    Verified Professionals
+                                </span>
+                            </div>
+                            <div className="flex items-center">
+                                <span className="text-green-600">✓</span>
+                                <span className="ml-2">
+                                    Hassle Free Booking
+                                </span>
+                            </div>
+                            <div className="flex items-center">
+                                <span className="text-green-600">✓</span>
+                                <span className="ml-2">
+                                    Transparent Pricing
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-          </div>
-      </div>
-      <Footer />
-    </>
-  );
+            <Footer />
+        </>
+    );
 };
 
 export default ServicePage;
