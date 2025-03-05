@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaStar, FaPlus, FaMinus } from "react-icons/fa";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
@@ -101,34 +101,59 @@ const ServicePage = () => {
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [cartItems, setCartItems] = useState([]);
 
+    useEffect(() => {
+        const storedCart = localStorage.getItem("cartItems");
+        if (storedCart) {
+            try {
+                setCartItems(JSON.parse(storedCart)); // Parse stored cart items
+            } catch (error) {
+                console.error("Error parsing cart data:", error);
+            }
+        }
+    }, []);
+
+    useEffect(() => {
+        if (cartItems.length > 0) {
+            // Only update localStorage if cartItems is not empty
+            localStorage.setItem("cartItems", JSON.stringify(cartItems));
+        }
+    }, [cartItems]);
+
     // Handle category selection
     const handleCategorySelect = (index) => {
         setSelectedCategory(index);
-    };
-
-    // Handle adding a service to the cart
-    const handleAddToCart = (option) => {
-        setCartItems([...cartItems, option]);
     };
 
     // Filter services based on the selected category
     const filteredServices =
         selectedCategory !== null ? [services[selectedCategory]] : services;
 
-    // Handle quantity increase
+    // Handle adding a service to the cart
+    const handleAddToCart = (option) => {
+        const existingItem = cartItems.find(
+            (item) => item.name === option.name
+        );
+        if (existingItem) {
+            handleIncreaseQuantity(cartItems.indexOf(existingItem));
+        } else {
+            setCartItems([...cartItems, { ...option, quantity: 1 }]);
+        }
+    };
+
     const handleIncreaseQuantity = (index) => {
         const updatedCart = [...cartItems];
-        updatedCart[index].quantity = (updatedCart[index].quantity || 1) + 1;
+        updatedCart[index].quantity += 1;
         setCartItems(updatedCart);
     };
 
-    // Handle quantity decrease
     const handleDecreaseQuantity = (index) => {
         const updatedCart = [...cartItems];
         if (updatedCart[index].quantity > 1) {
             updatedCart[index].quantity -= 1;
-            setCartItems(updatedCart);
+        } else {
+            updatedCart.splice(index, 1);
         }
+        setCartItems(updatedCart);
     };
 
     // Calculate total price
@@ -290,18 +315,27 @@ const ServicePage = () => {
                                 );
                             })
                         ) : (
-                            <p className="text-gray-600">
-                                No items in your cart
-                            </p>
-                        )}
-                        <Link to="/cart">
-                            <button className="bg-purple-600 flex text-white px-4 py-2 rounded-lg mt-2 w-full hover:bg-purple-700 transition-all justify-between">
-                                <p className="text-lg col-span-1">
-                                    ₹{totalPrice}
+                            <div className="justify-center items-center flex">
+                                <div className="text-purple-600 text-4xl">
+                                    🛒
+                                </div>
+                                <p className="text-gray-600 ">
+                                    No items in your cart
                                 </p>
-                                View Cart
-                            </button>
-                        </Link>
+                            </div>
+                        )}
+                        {cartItems.length > 0 ? (
+                            <Link to="/cart">
+                                <button className="bg-purple-600 flex text-white px-4 py-2 rounded-lg mt-2 w-full hover:bg-purple-700 transition-all justify-between">
+                                    <p className="text-lg col-span-1">
+                                        ₹{totalPrice}
+                                    </p>
+                                    View Cart
+                                </button>
+                            </Link>
+                        ) : (
+                            <p></p>
+                        )}
                     </div>
 
                     <div className="mt-6 border p-4 rounded-lg shadow">
