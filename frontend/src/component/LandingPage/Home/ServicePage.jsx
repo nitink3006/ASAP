@@ -328,7 +328,7 @@ const ServicePage = () => {
                             <Link to="/cart">
                                 <button className="bg-purple-600 flex text-white px-4 py-2 rounded-lg mt-2 w-full hover:bg-purple-700 transition-all justify-between">
                                     <p className="text-lg col-span-1">
-                                        ₹{totalPrice}
+                                        ${totalPrice}
                                     </p>
                                     View Cart
                                 </button>
