@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   FiTrash2,
   FiSearch,
+  FiX,
   FiChevronLeft,
   FiChevronRight,
 } from "react-icons/fi";
@@ -16,10 +17,12 @@ const AddCategory = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [categoryName, setCategoryName] = useState("");
+  const [zipCode, setZipCode] = useState(""); // Added zip code state
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const fileInputRef = useRef(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const S = JSON.parse(localStorage.getItem("user"));
   const token = S.token;
   console.log("Data", S);
@@ -63,6 +66,7 @@ const AddCategory = () => {
 
     const formData = new FormData();
     formData.append("name", categoryName);
+    formData.append("zip_code", zipCode); // Added zip code to form data
     if (image) {
       formData.append("images", image);
     }
@@ -86,6 +90,7 @@ const AddCategory = () => {
 
         // Reset form
         setCategoryName("");
+        setZipCode(""); // Reset zip code
         setImage(null);
         setPreview("");
         if (fileInputRef.current) {
@@ -115,7 +120,8 @@ const AddCategory = () => {
   const filteredCategories = (categories || []).filter(
     (cat) =>
       cat?.service?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      cat?.category?.toLowerCase().includes(searchQuery.toLowerCase())
+      cat?.category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      cat?.zipcode?.toLowerCase().includes(searchQuery.toLowerCase()) // Added zip code to search filter
   );
 
   // Pagination logic
@@ -144,6 +150,7 @@ const AddCategory = () => {
           id: cat.id,
           category: cat.name, // Change 'name' to 'category' as expected in JSX
           image: cat.images, // Change 'images' to 'image' as expected in JSX
+          zipcode: cat.zipcode || "", // Include zip code in transformed data
         }));
 
         setCategories(transformedData);
@@ -193,6 +200,22 @@ const AddCategory = () => {
                   required
                 />
               </div>
+
+              {/* New Zip Code Field */}
+              <div>
+                <label className="block text-gray-700 font-medium mb-2">
+                  Zip Code
+                </label>
+                <input
+                  type="text"
+                  value={zipCode}
+                  onChange={(e) => setZipCode(e.target.value)}
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-gray-400 focus:outline-none"
+                  placeholder="Enter zip code"
+                  required
+                />
+              </div>
+
               <div>
                 <label className="block text-gray-700 font-medium mb-2">
                   Upload Image
@@ -206,8 +229,12 @@ const AddCategory = () => {
                     className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-gray-400 focus:outline-none"
                   />
                 </div>
+
                 {preview && (
-                  <div className="mt-4 relative w-32">
+                  <div
+                    className="mt-4 relative w-32 cursor-pointer"
+                    onClick={() => setIsModalOpen(true)}
+                  >
                     <img
                       src={preview}
                       alt="Preview"
@@ -215,7 +242,10 @@ const AddCategory = () => {
                     />
                     <button
                       type="button"
-                      onClick={removeImage}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeImage();
+                      }}
                       className="absolute top-0 right-0 bg-red-600 text-white p-1 rounded-full shadow-md hover:bg-red-700"
                     >
                       <FiTrash2 size={16} />
@@ -223,11 +253,12 @@ const AddCategory = () => {
                   </div>
                 )}
               </div>
+
               <button
                 type="submit"
                 className="w-full bg-gray-700 text-white p-3 rounded-lg hover:bg-gray-800 transition cursor-pointer"
               >
-                Add Category
+                {loading ? "Adding..." : "Add Category"}
               </button>
             </form>
           </div>
@@ -256,6 +287,7 @@ const AddCategory = () => {
                 <thead className="bg-gray-800 text-white">
                   <tr>
                     <th className="p-4 text-left">Category</th>
+                    <th className="p-4 text-center">Zip Code</th>
                     <th className="p-4 text-center">Image</th>
                     <th className="p-4 text-center">Actions</th>
                   </tr>
@@ -268,6 +300,7 @@ const AddCategory = () => {
                         className="border-b hover:bg-gray-100 transition"
                       >
                         <td className="p-4">{cat.category}</td>
+                        <td className="p-4 text-center">{cat.zipcode}</td>
                         <td className="p-4 text-center">
                           <img
                             src={cat.image}
@@ -298,6 +331,23 @@ const AddCategory = () => {
           </div>
         </div>
       </div>
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75">
+          <div className="relative bg-white p-4 rounded-lg shadow-lg max-w-lg">
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="absolute top-2 right-2 bg-gray-700 text-white p-2 rounded-full hover:bg-gray-800"
+            >
+              <FiX size={20} />
+            </button>
+            <img
+              src={preview}
+              alt="Full Preview"
+              className="w-full h-auto rounded-lg"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

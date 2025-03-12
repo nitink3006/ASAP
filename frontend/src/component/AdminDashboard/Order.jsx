@@ -102,7 +102,7 @@ const Order = () => {
                     >
                       <td className="p-4 font-medium">{order.serviceName}</td>
                       <td className="p-4">{order.bookedBy}</td>
-                      <td className="p-4">Rs.{order.price}</td>
+                      <td className="p-4">${order.price}</td>
                       <td className="p-4 font-semibold text-sm">
                         <span
                           className={`px-3 py-1 rounded-full ${
