@@ -82,6 +82,20 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
           </NavLink>
 
           <NavLink
+            to="/service"
+            className={({ isActive }) =>
+              `flex items-center py-3 px-4 rounded transition-colors duration-300 ${
+                isActive
+                  ? "bg-white text-black"
+                  : "text-white hover:bg-[#6B7280]"
+              }`
+            }
+          >
+            <FolderIcon className="h-5 w-5 mr-2 text-black" />
+            <span>Service</span>
+          </NavLink>
+
+          <NavLink
             to="/add-service"
             className={({ isActive }) =>
               `flex items-center py-3 px-4 rounded transition-colors duration-300 ${
