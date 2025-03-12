@@ -13,7 +13,7 @@ const services = [
                 name: "Test control (includes utensil removal)",
                 rating: 4.79,
                 reviews: "98K",
-                price: "Starts at ₹1,498",
+                price: "Starts at $1,498",
                 description: [
                     "Treatment will be completed in 2 visits with 2 weeks of gap",
                     "We'll remove utensils before the service begins",
@@ -25,7 +25,7 @@ const services = [
                 name: "Test control (excludes utensil removal)",
                 rating: 4.8,
                 reviews: "63K",
-                price: "Starts at ₹1,299",
+                price: "Starts at $1,299",
                 description: [
                     "Treatment will be completed in 2 visits with 2 weeks of gap",
                     "Excludes removal of utensils & objects before the service begins",
@@ -43,7 +43,7 @@ const services = [
                 name: "Apartment pest control (includes utensil removal)",
                 rating: 4.81,
                 reviews: "25K",
-                price: "Starts at ₹1,498",
+                price: "Starts at $1,498",
                 description: [
                     "Treatment will be completed in 2 visits with 2 weeks of gap",
                     "We'll remove utensils before the service begins",
@@ -55,7 +55,7 @@ const services = [
                 name: "Apartment pest control (excludes utensil removal)",
                 rating: 4.81,
                 reviews: "132K",
-                price: "Starts at ₹1,299",
+                price: "Starts at $1,299",
                 description: [
                     "Treatment will be completed in 2 visits with 2 weeks of gap",
                     "Excludes removal of utensils & objects before the service begins",
@@ -73,7 +73,7 @@ const services = [
                 name: "Office pest control",
                 rating: 4.64,
                 reviews: "4K",
-                price: "Starts at ₹1,649",
+                price: "Starts at $1,649",
                 description: [
                     "Treatment will be completed in 2 visits with 2 weeks of gap",
                     "Excludes removal of utensils & objects before the service begins",
@@ -85,7 +85,7 @@ const services = [
                 name: "Retail shop pest control",
                 rating: 4.63,
                 reviews: "789",
-                price: "Starts at ₹1,649",
+                price: "Starts at $1,649",
                 description: [
                     "Treatment will be completed in 2 visits with 2 weeks of gap",
                     "Excludes removal of utensils & objects before the service begins",
@@ -308,7 +308,7 @@ const ServicePage = () => {
                                                         <FaPlus className="w-4 h-4" />
                                                     </button>
                                                 </div>
-                                                <p>₹{itemPrice}</p>
+                                                <p>${itemPrice}</p>
                                             </div>
                                         </div>
                                     </div>

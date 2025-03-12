@@ -56,7 +56,7 @@ const Cart = () => {
                                     </p>
                                 </div>
                                 <span className="text-lg font-bold text-gray-800">
-                                    ₹
+                                    $
                                     {parseInt(
                                         item.price.replace(/\D/g, ""),
                                         10
@@ -72,7 +72,7 @@ const Cart = () => {
 
                     <div className="mt-6 flex justify-between items-center border-t pt-4">
                         <h2 className="text-xl font-bold">
-                            Total: ₹{totalPrice}
+                            Total: ${totalPrice}
                         </h2>
                     </div>
 
