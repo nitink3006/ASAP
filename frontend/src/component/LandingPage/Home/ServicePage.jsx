@@ -10,7 +10,7 @@ const services = [
         image: "https://res.cloudinary.com/urbanclap/image/upload/t_high_res_template,q_auto:low,f_auto/w_64,dpr_2,fl_progressive:steep,q_auto:low,f_auto,c_limit/images/growth/luminosity/1731504494228-eb2d1d.jpeg",
         options: [
             {
-                name: "Test control (includes utensil removal)",
+                name: "Pest control (includes utensil removal)",
                 rating: 4.79,
                 reviews: "98K",
                 price: "Starts at $1,498",
@@ -22,7 +22,7 @@ const services = [
                 image: "https://res.cloudinary.com/urbanclap/image/upload/t_high_res_template,q_auto:low,f_auto/w_128,dpr_2,fl_progressive:steep,q_auto:low,f_auto,c_limit/images/growth/luminosity/1731504272013-0ef836.jpeg", // Replace with your image URL
             },
             {
-                name: "Test control (excludes utensil removal)",
+                name: "Pest control (excludes utensil removal)",
                 rating: 4.8,
                 reviews: "63K",
                 price: "Starts at $1,299",
