@@ -96,7 +96,7 @@ const Footer = () => {
 
                 <div className="border-t border-gray-700 mt-8 pt-4 text-center text-gray-500 text-sm">
                     © {new Date().getFullYear()} Expert Services. All Rights
-                    Reserved. | Designed by Webcraftix
+                    Reserved.
                 </div>
             </footer>
         </>
