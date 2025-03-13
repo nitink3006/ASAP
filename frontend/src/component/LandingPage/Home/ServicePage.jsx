@@ -237,7 +237,7 @@ const ServicePage = () => {
                                                 )
                                             )}
                                         </ul>
-                                        <button className="text-purple-600 mt-2 text-sm">
+                                        <button className="text-purple-600 mt-2 text-sm cursor-pointer">
                                             View details
                                         </button>
                                     </div>
@@ -248,7 +248,7 @@ const ServicePage = () => {
                                             className="rounded-lg"
                                         />
                                         <button
-                                            className="bg-purple-600 text-white px-4 py-2 rounded-lg mt-2 text-sm block ml-auto"
+                                            className="bg-purple-600 cursor-pointer text-white px-4 py-2 rounded-lg mt-2 text-sm block ml-auto"
                                             onClick={() =>
                                                 handleAddToCart(option)
                                             }
@@ -285,7 +285,7 @@ const ServicePage = () => {
                                             <div className="col-span-1 w-full flex justify-between">
                                                 <div className="flex items-center border border-blue-400 rounded-lg w-fit bg-blue-100">
                                                     <button
-                                                        className="text-blue-300 px-2 py-1"
+                                                        className="text-blue-300 px-2 py-1 cursor-pointer"
                                                         onClick={() =>
                                                             handleDecreaseQuantity(
                                                                 index
@@ -298,7 +298,7 @@ const ServicePage = () => {
                                                         {item.quantity || 1}
                                                     </span>
                                                     <button
-                                                        className="text-blue-300 px-2 py-1"
+                                                        className="text-blue-300 px-2 py-1 cursor-pointer"
                                                         onClick={() =>
                                                             handleIncreaseQuantity(
                                                                 index
@@ -326,7 +326,7 @@ const ServicePage = () => {
                         )}
                         {cartItems.length > 0 ? (
                             <Link to="/cart">
-                                <button className="bg-purple-600 flex text-white px-4 py-2 rounded-lg mt-2 w-full hover:bg-purple-700 transition-all justify-between">
+                                <button className="bg-purple-600 flex text-white px-4 py-2 rounded-lg mt-2 w-full hover:bg-purple-700 transition-all justify-between cursor-pointer">
                                     <p className="text-lg col-span-1">
                                         ${totalPrice}
                                     </p>

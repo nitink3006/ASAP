@@ -22,7 +22,6 @@ const Navbar = () => {
       setUser(storedUser);
     }
   }, []);
-  console.log(user)
 
   useEffect(() => {
     const fetchLocations = async (query) => {
