@@ -57,7 +57,6 @@ const Login = () => {
 
   const handleForgotPassword = () => {
     setShowModal(true);
-    console.log("mai khuld gye")
   };
 
   const handleGetOtp = () => {

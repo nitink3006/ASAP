@@ -54,36 +54,36 @@ const Navbar = () => {
           <h1 className="text-2xl font-bold tracking-wide">ASAP</h1>
         </Link>
 
-<div className="hidden md:flex flex-wrap items-center space-x-6 w-fit md:max-w-96 lg:max-w-3xl">
-  {/* Location Search */}
-  <div className="relative flex-1 min-w-[100px] max-w-[250px] sm:max-w-[180px] md:max-w-[250px]">
-    <div className="flex items-center bg-gray-100 px-3 py-2 rounded-md shadow-sm border border-gray-300">
-      <MdLocationOn className="text-black mr-2 text-lg" />
-      <input
-        ref={locationInputRef}
-        type="text"
-        placeholder="Enter location..."
-        value={location}
-        onChange={(e) => setLocation(e.target.value)}
-        className="w-full bg-transparent outline-none text-gray-500 placeholder-gray-500"
-      />
-    </div>
-  </div>
+        <div className="hidden md:flex flex-wrap items-center space-x-6 w-fit md:max-w-96 lg:max-w-3xl">
+          {/* Location Search */}
+          <div className="relative flex-1 min-w-[100px] max-w-[250px] sm:max-w-[180px] md:max-w-[250px]">
+            <div className="flex items-center bg-gray-100 px-3 py-2 rounded-md shadow-sm border border-gray-300">
+              <MdLocationOn className="text-black mr-2 text-lg" />
+              <input
+                ref={locationInputRef}
+                type="text"
+                placeholder="Enter location..."
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                className="w-full bg-transparent outline-none text-gray-500 placeholder-gray-500"
+              />
+            </div>
+          </div>
 
-  {/* Services Search */}
-  <div className="flex-1 min-w-[100px] max-w-[250px] sm:max-w-[180px] md:max-w-[250px]">
-    <div className="flex items-center bg-gray-100 px-3 py-2 rounded-md shadow-sm border border-gray-300">
-      <FaSearch className="text-black mr-2 text-lg" />
-      <input
-        type="text"
-        placeholder="Search services..."
-        value={service}
-        onChange={(e) => setService(e.target.value)}
-        className="w-full bg-transparent outline-none text-gray-500 placeholder-gray-500"
-      />
-    </div>
-  </div>
-</div>
+          {/* Services Search */}
+          <div className="flex-1 min-w-[100px] max-w-[250px] sm:max-w-[180px] md:max-w-[250px]">
+            <div className="flex items-center bg-gray-100 px-3 py-2 rounded-md shadow-sm border border-gray-300">
+              <FaSearch className="text-black mr-2 text-lg" />
+              <input
+                type="text"
+                placeholder="Search services..."
+                value={service}
+                onChange={(e) => setService(e.target.value)}
+                className="w-full bg-transparent outline-none text-gray-500 placeholder-gray-500"
+              />
+            </div>
+          </div>
+        </div>
 
 
 
@@ -91,19 +91,17 @@ const Navbar = () => {
         <div className="hidden md:flex items-center space-x-8 text-lg font-medium">
           <Link
             to="/"
-            className={`relative transition duration-300 ${
-              currentRoute === "/"
+            className={`relative transition duration-300 ${currentRoute === "/"
                 ? "text-black font-semibold border-b-2 border-black-600"
                 : "text-gray-500 hover:text-black"
-            }`}
+              }`}
           >
             Home
           </Link>
           <Link to="/cart">
             <FaShoppingCart
-              className={`text-2xl cursor-pointer transition ${
-                currentRoute === "/cart" ? "text-black" : "text-gray-500"
-              }`}
+              className={`text-2xl cursor-pointer transition ${currentRoute === "/cart" ? "text-black" : "text-gray-500"
+                }`}
             />
           </Link>
 
@@ -124,6 +122,12 @@ const Navbar = () => {
                   >
                     Help Center
                   </Link>
+                  <Link
+                    to="/your-order"
+                    className="block px-4 py-2 hover:bg-gray-100"
+                  >
+                    Your Order
+                  </Link>
                   <button
                     onClick={handleLogout}
                     className="block w-full text-left px-4 py-2 hover:bg-gray-100"
@@ -136,11 +140,10 @@ const Navbar = () => {
           ) : (
             <Link
               to="/login"
-              className={`relative transition duration-300 ${
-                currentRoute === "/login"
+              className={`relative transition duration-300 ${currentRoute === "/login"
                   ? "text-black font-semibold border-b-2 border-black"
                   : "text-gray-500 hover:text-black"
-              }`}
+                }`}
             >
               Login
             </Link>
@@ -148,12 +151,12 @@ const Navbar = () => {
         </div>
 
         {/* Mobile Menu Button */}
-<button
-  className="md:hidden text-2xl text-gray-700 flex items-center"
-  onClick={() => setMenuOpen(!menuOpen)}
->
-  {menuOpen ? <IoMdClose className="text-3xl text-black" /> : <IoMdMenu className="text-3xl text-black" />}
-</button>
+        <button
+          className="md:hidden text-2xl text-gray-700 flex items-center"
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          {menuOpen ? <IoMdClose className="text-3xl text-black" /> : <IoMdMenu className="text-3xl text-black" />}
+        </button>
 
       </div>
 

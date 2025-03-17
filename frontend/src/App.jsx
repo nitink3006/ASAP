@@ -15,6 +15,7 @@ import ServicePage from "./component/LandingPage/Home/ServicePage";
 import SubCategory from "./component/AdminDashboard/SubCategory";
 import Cart from "./component/LandingPage/Home/Cart";
 import Service from "./component/AdminDashboard/Service";
+import OrderPage from "./component/LandingPage/Home/OrderPage";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -23,7 +24,6 @@ function App() {
     <PreLoader onComplete={() => setLoading(false)} />
   ) : (
     <Router>
-      <div className="min-h-screen">
         <Routes>
           {/* Routes with Navbar */}
           <Route path="/" element={<Home />} />
@@ -39,8 +39,8 @@ function App() {
           <Route path="/remove-service" element={<RemoveService />} />
           <Route path="/sub-category" element={<SubCategory />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/your-order" element={<OrderPage />} />
         </Routes>
-      </div>
     </Router>
   );
 }
