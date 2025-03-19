@@ -82,9 +82,11 @@ const Cart = () => {
                                 Add Services
                             </button>
                         </Link>
-                        <button className="flex-1 cursor-pointer py-2 px-4 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition">
-                            Checkout
-                        </button>
+                        <Link to="/check-out" className="flex-1">
+                            <button className="flex-1 cursor-pointer py-2 px-4 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition">
+                                Checkout
+                            </button>
+                        </Link>
                     </div>
                 </div>
             </div>
