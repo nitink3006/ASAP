@@ -3,6 +3,7 @@ import { FaShoppingCart, FaSearch } from "react-icons/fa";
 import { IoMdMenu, IoMdClose } from "react-icons/io";
 import { MdLocationOn } from "react-icons/md";
 import { useLocation, Link, useNavigate } from "react-router-dom";
+import { FaCrosshairs } from "react-icons/fa";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -14,6 +15,8 @@ const Navbar = () => {
   const locationInputRef = useRef(null);
   const currentRoute = useLocation().pathname;
   const navigate = useNavigate();
+  const dropdownRef = useRef(null);
+
 
   useEffect(() => {
     // Fetch user details from local storage
@@ -23,6 +26,14 @@ const Navbar = () => {
     }
   }, []);
 
+  useEffect(() => {
+    const savedLocation = localStorage.getItem("selectedLocation");
+    if (savedLocation) {
+      setLocation(savedLocation);
+    }
+  }, []);
+
+  // Fetch location suggestions
   useEffect(() => {
     const fetchLocations = async (query) => {
       if (!query) return;
@@ -39,6 +50,50 @@ const Navbar = () => {
       setLocationSuggestions([]);
     }
   }, [location]);
+
+  // Handle location selection
+  const handleSelectLocation = (selectedLocation) => {
+    setLocation(selectedLocation);
+    localStorage.setItem("selectedLocation", selectedLocation);
+    setLocationSuggestions([]);
+  };
+
+  // Fetch current location using Geolocation API
+  const fetchCurrentLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const { latitude, longitude } = position.coords;
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+        );
+        const data = await response.json();
+        if (data.display_name) {
+          handleSelectLocation(data.display_name);
+        }
+      });
+    } else {
+      alert("Geolocation is not supported by this browser.");
+    }
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target) &&
+        locationInputRef.current &&
+        !locationInputRef.current.contains(event.target)
+      ) {
+        setLocationSuggestions([]);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
 
   const handleLogout = () => {
     localStorage.clear(); // Clear everything from local storage
@@ -57,17 +112,38 @@ const Navbar = () => {
         <div className="hidden md:flex flex-wrap items-center space-x-6 w-fit md:max-w-96 lg:max-w-3xl">
           {/* Location Search */}
           <div className="relative flex-1 min-w-[100px] max-w-[250px] sm:max-w-[180px] md:max-w-[250px]">
-            <div className="flex items-center bg-gray-100 px-3 py-2 rounded-md shadow-sm border border-gray-300">
-              <MdLocationOn className="text-black mr-2 text-lg" />
-              <input
-                ref={locationInputRef}
-                type="text"
-                placeholder="Enter location..."
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                className="w-full bg-transparent outline-none text-gray-500 placeholder-gray-500"
-              />
-            </div>
+          <div className="flex items-center bg-gray-100 px-3 py-2 rounded-md shadow-sm border border-gray-300">
+          <MdLocationOn className="text-black mr-2 text-lg" />
+        <input
+          ref={locationInputRef}
+          type="text"
+          placeholder="Enter location..."
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+          className="w-full bg-transparent outline-none text-gray-500 placeholder-gray-500"
+        />
+        <button onClick={fetchCurrentLocation} className="ml-2 text-gray-700">
+          <FaCrosshairs className="text-lg hover:text-black transition duration-200 cursor-pointer" />
+        </button>
+      </div>
+
+      {/* Suggestions Dropdown */}
+      {locationSuggestions.length > 0 && (
+        <ul
+          ref={dropdownRef}
+          className="absolute left-0 mt-1 w-full bg-white border border-gray-300 shadow-md rounded-md max-h-48 overflow-y-auto z-10"
+        >
+          {locationSuggestions.map((suggestion, index) => (
+            <li
+              key={index}
+              className="px-3 py-2 cursor-pointer hover:bg-gray-200"
+              onClick={() => handleSelectLocation(suggestion)}
+            >
+              {suggestion}
+            </li>
+          ))}
+        </ul>
+      )}
           </div>
 
           {/* Services Search */}

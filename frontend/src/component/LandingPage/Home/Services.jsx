@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { FaTimes } from "react-icons/fa";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import Config from "../../../Config";
+import spa from "../../../assets/spa.jpeg"
 
 const Services = () => {
   const [services, setServices] = useState([]);
@@ -56,7 +57,7 @@ const Services = () => {
   }, [selectedService]);
 
   return (
-    <div className="bg-white min-h-screen py-12 px-6 lg:px-24 relative">
+    <div className="bg-white py-12 px-6 lg:px-24 relative">
       {/* Main Heading */}
       <h1 className="text-4xl font-bold text-gray-900 text-center">
         Our Services
@@ -110,7 +111,7 @@ const Services = () => {
               <Link to="/service-page">
                 <div className="bg-gray-200 p-2 rounded-lg">
                   <img
-                    src={item.images}
+                    src={spa}
                     alt={item.name}
                     className="w-12 h-12 mx-auto rounded-md"
                   />

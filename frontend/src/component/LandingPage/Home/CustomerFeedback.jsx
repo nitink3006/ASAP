@@ -63,7 +63,7 @@ const getStars = (rating) => {
 
 const CustomerFeedback = () => {
   return (
-    <div className="bg-white min-h-screen py-12 px-6 lg:px-24">
+    <div className="bg-white py-12 px-6 lg:px-24 mt-16">
       {/* Heading */}
       <h1 className="text-4xl font-bold text-gray-900 text-center">Customer Feedback</h1>
       <p className="text-lg text-gray-600 text-center mt-2">See what our customers have to say</p>
