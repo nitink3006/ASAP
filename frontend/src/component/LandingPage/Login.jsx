@@ -14,7 +14,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [userType, setUserType] = useState('user');
+  const [userType, setUserType] = useState('admin');
   const navigate = useNavigate();
 
   const handleEmailChange = async (e) => {
@@ -49,7 +49,7 @@ const Login = () => {
       const response = await fetch(`${Config.API_URL}/login/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ username: email, password }),
       });
       const data = await response.json();
       if (response.ok) {
@@ -87,7 +87,7 @@ const Login = () => {
               <div className="flex items-center border rounded-lg p-2 bg-gray-100">
                 <FaUser className="text-gray-500 mr-2" />
                 <input
-                  type="email"
+                  type="text"
                   placeholder="Enter your email"
                   className="w-full outline-none bg-transparent"
                   value={email}
