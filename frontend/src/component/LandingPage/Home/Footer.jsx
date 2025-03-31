@@ -9,7 +9,7 @@ import {
 const Footer = () => {
     return (
         <>
-            <div className="border-t border-gray-400"></div>
+            <div className="border-t border-gray-400 mt-20"></div>
 
             <footer className="bg-gray-50 text-black py-10 px-6 lg:px-24">
                 {/* Top Border Line */}

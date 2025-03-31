@@ -59,7 +59,6 @@ const Service = () => {
     }
   }, [token, handleError]);
 
-  // Fetch sub-categories with improved error handling
   const fetchSubCategories = useCallback(async () => {
     setLoading(true);
     try {
