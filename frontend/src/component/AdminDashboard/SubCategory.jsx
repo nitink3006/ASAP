@@ -4,6 +4,8 @@ import {
   FiSearch,
   FiChevronLeft,
   FiChevronRight,
+  FiEdit2,
+  FiX,
 } from "react-icons/fi";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
@@ -16,17 +18,25 @@ const SubCategory = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [categoryName, setCategoryName] = useState("");
-  const [selectedCategoryId, setSelectedCategoryId] = useState(""); // State for selected category ID
+  const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const fileInputRef = useRef(null);
   const S = JSON.parse(localStorage.getItem("user"));
   const token = S.token;
-  console.log("Data", S);
+
+  // Edit Modal States
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingSubCategory, setEditingSubCategory] = useState(null);
+  const [editName, setEditName] = useState("");
+  const [editCategoryId, setEditCategoryId] = useState("");
+  const [editImage, setEditImage] = useState(null);
+  const [editPreview, setEditPreview] = useState("");
+  const editFileInputRef = useRef(null);
 
   const [categories, setCategories] = useState([]);
-  const [subCategories, setSubCategories] = useState([]); // State for sub-categories
+  const [subCategories, setSubCategories] = useState([]);
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
@@ -42,19 +52,85 @@ const SubCategory = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const handleImageChange = (e) => {
+  const handleImageChange = (e, isEdit = false) => {
     const file = e.target.files[0];
     if (file) {
-      setImage(file);
-      setPreview(URL.createObjectURL(file));
+      if (isEdit) {
+        setEditImage(file);
+        setEditPreview(URL.createObjectURL(file));
+      } else {
+        setImage(file);
+        setPreview(URL.createObjectURL(file));
+      }
     }
   };
 
-  const removeImage = () => {
-    setImage(null);
-    setPreview("");
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+  const removeImage = (isEdit = false) => {
+    if (isEdit) {
+      setEditImage(null);
+      setEditPreview("");
+      if (editFileInputRef.current) {
+        editFileInputRef.current.value = "";
+      }
+    } else {
+      setImage(null);
+      setPreview("");
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  const handleEdit = (subCategory) => {
+    setEditingSubCategory(subCategory);
+    setEditName(subCategory.name);
+    setEditCategoryId(subCategory.category.id);
+    setEditPreview(subCategory.images);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const formData = new FormData();
+    formData.append("name", editName);
+    formData.append("category_id", editCategoryId);
+    if (editImage) {
+      formData.append("images", editImage);
+    }
+
+    try {
+      const response = await fetch(
+        `${Config.API_URL}/sub-service-categories/${editingSubCategory.id}/`,
+        {
+          method: "PATCH",
+          body: formData,
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        toast.success("Sub-category updated successfully!", {
+          position: "top-right",
+          autoClose: 1000,
+        });
+        setIsEditModalOpen(false);
+        fetchSubCategories();
+      } else {
+        const data = await response.json();
+        toast.error(data.message || "Failed to update sub-category", {
+          position: "top-right",
+        });
+      }
+    } catch (err) {
+      toast.error("Something went wrong. Please try again.", {
+        position: "top-right",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -74,7 +150,7 @@ const SubCategory = () => {
 
     const formData = new FormData();
     formData.append("name", categoryName);
-    formData.append("category_id", selectedCategoryId); // Changed to category_id as required by the API
+    formData.append("category_id", selectedCategoryId);
     if (image) {
       formData.append("images", image);
     }
@@ -99,7 +175,6 @@ const SubCategory = () => {
           autoClose: 1000,
         });
 
-        // Reset form
         setCategoryName("");
         setSelectedCategoryId("");
         setImage(null);
@@ -108,19 +183,15 @@ const SubCategory = () => {
           fileInputRef.current.value = "";
         }
 
-        // Refresh sub-categories list
         fetchSubCategories();
       } else {
-        console.error("API error:", data);
         let errorMessage = "Failed to add sub-category.";
 
-        // Handle specific error messages from the API response
         if (data.category_id) {
           errorMessage = `Category error: ${data.category_id.join(", ")}`;
         } else if (data.message) {
           errorMessage = data.message;
         } else if (typeof data === "object") {
-          // Try to extract error message from any field
           const firstError = Object.values(data)[0];
           if (Array.isArray(firstError)) {
             errorMessage = firstError.join(", ");
@@ -175,7 +246,6 @@ const SubCategory = () => {
     }
   };
 
-  // Fetch main categories
   const fetchCategories = async () => {
     try {
       const response = await fetch(`${Config.API_URL}/service-categories/`, {
@@ -196,7 +266,6 @@ const SubCategory = () => {
     }
   };
 
-  // Fetch sub-categories
   const fetchSubCategories = async () => {
     setLoading(true);
     try {
@@ -228,14 +297,12 @@ const SubCategory = () => {
     fetchSubCategories();
   }, []);
 
-  // Ensure subCategories is an array and filter safely
   const filteredSubCategories = (subCategories || []).filter(
     (subCat) =>
       subCat?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       subCat?.category?.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Pagination logic
   const totalPages = Math.ceil(filteredSubCategories.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const displayedSubCategories = filteredSubCategories.slice(
@@ -320,7 +387,7 @@ const SubCategory = () => {
                     />
                     <button
                       type="button"
-                      onClick={removeImage}
+                      onClick={() => removeImage(false)}
                       className="absolute top-0 right-0 bg-red-600 text-white p-1 rounded-full shadow-md hover:bg-red-700"
                     >
                       <FiTrash2 size={16} />
@@ -390,12 +457,20 @@ const SubCategory = () => {
                           />
                         </td>
                         <td className="p-4 text-center">
-                          <button
-                            onClick={() => handleDelete(subCat.id)}
-                            className="bg-red-600 text-white p-2 rounded-md hover:bg-red-700 transition"
-                          >
-                            <FiTrash2 />
-                          </button>
+                          <div className="flex justify-center space-x-2">
+                            <button
+                              onClick={() => handleEdit(subCat)}
+                              className="bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition cursor-pointer"
+                            >
+                              <FiEdit2 />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(subCat.id)}
+                              className="bg-red-600 text-white p-2 rounded-md hover:bg-red-700 transition cursor-pointer"
+                            >
+                              <FiTrash2 />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -418,7 +493,7 @@ const SubCategory = () => {
                     setCurrentPage((prev) => Math.max(prev - 1, 1))
                   }
                   disabled={currentPage === 1}
-                  className={`p-2 mx-1 rounded-md ${
+                  className={`p-2 mx-1 rounded-md cursor-pointer ${
                     currentPage === 1
                       ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                       : "bg-gray-800 text-white hover:bg-gray-700"
@@ -434,7 +509,7 @@ const SubCategory = () => {
                     setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                   }
                   disabled={currentPage === totalPages}
-                  className={`p-2 mx-1 rounded-md ${
+                  className={`p-2 mx-1 rounded-md cursor-pointer ${
                     currentPage === totalPages
                       ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                       : "bg-gray-800 text-white hover:bg-gray-700"
@@ -447,6 +522,101 @@ const SubCategory = () => {
           </div>
         </div>
       </div>
+
+      {/* Edit Modal */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl p-6 max-w-lg w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold">Edit Sub-Category</h3>
+              <button
+                onClick={() => setIsEditModalOpen(false)}
+                className="text-gray-500 hover:text-gray-700 cursor-pointer"
+              >
+                <FiX size={24} />
+              </button>
+            </div>
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div>
+                <label className="block text-gray-700 font-medium mb-2">
+                  Select Category
+                </label>
+                <select
+                  value={editCategoryId}
+                  onChange={(e) => setEditCategoryId(e.target.value)}
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-gray-400 focus:outline-none"
+                  required
+                >
+                  <option value="">-- Select a Category --</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-gray-700 font-medium mb-2">
+                  Sub-Category Name
+                </label>
+                <input
+                  type="text"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-gray-400 focus:outline-none"
+                  placeholder="Enter Sub-Category Name"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 font-medium mb-2">
+                  Update Image
+                </label>
+                <div className="bg-gray-50 p-4 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleImageChange(e, true)}
+                    ref={editFileInputRef}
+                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-gray-400 focus:outline-none"
+                  />
+                </div>
+                {editPreview && (
+                  <div className="mt-4 relative w-32">
+                    <img
+                      src={editPreview}
+                      alt="Preview"
+                      className="w-32 h-32 object-cover rounded-lg border border-gray-300 shadow-md"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(true)}
+                      className="absolute top-0 right-0 bg-red-600 text-white p-1 rounded-full shadow-md hover:bg-red-700"
+                    >
+                      <FiTrash2 size={16} />
+                    </button>
+                  </div>
+                )}
+              </div>
+              <div className="flex justify-end space-x-3 mt-6">
+                <button
+                  type="button"
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

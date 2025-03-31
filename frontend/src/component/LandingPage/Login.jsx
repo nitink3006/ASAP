@@ -6,8 +6,7 @@ import Navbar from "./Home/Navbar";
 import Footer from "./Home/Footer";
 import Config from "../../Config";
 import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"; 
-
+import "react-toastify/dist/ReactToastify.css";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -31,17 +30,20 @@ const Login = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username, password }), 
+        body: JSON.stringify({ username, password }),
       });
 
       const data = await response.json();
       if (response.ok) {
         localStorage.setItem("user", JSON.stringify(data));
-        toast.success("Login Successful!", { position: "top-right", autoClose: 1000 });
+        toast.success("Login Successful!", {
+          position: "top-right",
+          autoClose: 1000,
+        });
         setTimeout(() => {
           if (data.user_type === "customer") {
             navigate("/");
-          } else if (data.user_type === "owner") {
+          } else if (data.user_type === "admin") {
             navigate("/order");
           } else {
             setError("Invalid user type");
@@ -73,21 +75,32 @@ const Login = () => {
     <>
       <Navbar />
       <ToastContainer />
-      <div className={`min-h-screen flex items-center justify-center bg-white relative ${showModal ? 'blur-xs' : ''}`}>
+      <div
+        className={`min-h-screen flex items-center justify-center bg-white relative ${
+          showModal ? "blur-xs" : ""
+        }`}
+      >
         <div
           className="absolute inset-0 bg-white"
-          style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/white-wall.png')" }}
+          style={{
+            backgroundImage:
+              "url('https://www.transparenttextures.com/patterns/white-wall.png')",
+          }}
         ></div>
 
         <div className="bg-white p-8 rounded-lg shadow-2xl w-full max-w-md z-10">
-          <h2 className="text-3xl font-semibold text-center text-gray-800">Welcome Back</h2>
+          <h2 className="text-3xl font-semibold text-center text-gray-800">
+            Welcome Back
+          </h2>
           <p className="text-gray-500 text-center mt-2">Sign in to continue</p>
 
           {error && <p className="text-red-500 text-center mt-2">{error}</p>}
 
           <form className="mt-6" onSubmit={handleSubmit}>
             <div className="mb-4">
-              <label className="block text-gray-700 font-medium mb-2">User Name</label>
+              <label className="block text-gray-700 font-medium mb-2">
+                User Name
+              </label>
               <div className="flex items-center border rounded-lg p-2 bg-gray-100">
                 <FaUser className="text-gray-500 mr-2" />
                 <input
@@ -102,7 +115,9 @@ const Login = () => {
             </div>
 
             <div className="mb-4">
-              <label className="block text-gray-700 font-medium mb-2">Password</label>
+              <label className="block text-gray-700 font-medium mb-2">
+                Password
+              </label>
               <div className="flex items-center border rounded-lg p-2 bg-gray-100 relative">
                 <FaLock className="text-gray-500 mr-2" />
                 <input
@@ -132,14 +147,20 @@ const Login = () => {
             </button>
           </form>
           <p className="text-center text-gray-500 mt-4">
-            <span onClick={handleForgotPassword} className="text-gray-700 font-medium hover:underline cursor-pointer">
+            <span
+              onClick={handleForgotPassword}
+              className="text-gray-700 font-medium hover:underline cursor-pointer"
+            >
               Forget Password?
             </span>
           </p>
 
           <p className="text-center text-gray-500 mt-4">
             Don't have an account?{" "}
-            <Link to="/signup" className="text-gray-700 font-medium hover:underline">
+            <Link
+              to="/signup"
+              className="text-gray-700 font-medium hover:underline"
+            >
               Create Account
             </Link>
           </p>
@@ -156,7 +177,10 @@ const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
-            <button onClick={handleGetOtp} className="bg-gray-700 text-white py-2 px-4 rounded mb-4 w-full">
+            <button
+              onClick={handleGetOtp}
+              className="bg-gray-700 text-white py-2 px-4 rounded mb-4 w-full"
+            >
               Get OTP
             </button>
             <input
@@ -166,7 +190,10 @@ const Login = () => {
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
             />
-            <button onClick={handleCloseModal} className="bg-gray-400 text-white py-2 px-4 rounded w-full">
+            <button
+              onClick={handleCloseModal}
+              className="bg-gray-400 text-white py-2 px-4 rounded w-full"
+            >
               Close
             </button>
           </div>

@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { Trash2, Search, Eye } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { Trash2, Search, Eye, Edit2 } from "lucide-react";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
-import Config from "../../Config"; // Make sure this import path is correct
+import Config from "../../Config";
 
 const RemoveService = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -12,6 +12,8 @@ const RemoveService = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedService, setSelectedService] = useState(null);
+  const [editingService, setEditingService] = useState(null);
+  const editFileInputRef = useRef(null);
   const servicesPerPage = 5;
 
   useEffect(() => {
@@ -23,50 +25,43 @@ const RemoveService = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Fetch services from API
   useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        setLoading(true);
-        // Get token from localStorage
-        const token = JSON.parse(localStorage.getItem("user"))?.token;
-
-        if (!token) {
-          throw new Error(
-            "Authentication token not found. Please login again."
-          );
-        }
-
-        const response = await fetch(`${Config.API_URL}/services/`, {
-          method: "GET",
-          headers: {
-            Authorization: `Token ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        // If data is an array, use it directly, otherwise wrap it in an array
-        const servicesData = Array.isArray(data) ? data : [data];
-        setServices(servicesData);
-        setError(null);
-      } catch (err) {
-        console.error("Error fetching services:", err);
-        setError(`Failed to fetch services: ${err.message}`);
-
-        // Clear services array on error
-        setServices([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchServices();
   }, []);
+
+  const fetchServices = async () => {
+    try {
+      setLoading(true);
+      const token = JSON.parse(localStorage.getItem("user"))?.token;
+
+      if (!token) {
+        throw new Error("Authentication token not found. Please login again.");
+      }
+
+      const response = await fetch(`${Config.API_URL}/services/`, {
+        method: "GET",
+        headers: {
+          Authorization: `Token ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const servicesData = Array.isArray(data) ? data : [data];
+      setServices(servicesData);
+      setError(null);
+    } catch (err) {
+      console.error("Error fetching services:", err);
+      setError(`Failed to fetch services: ${err.message}`);
+      setServices([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const toggleSidebar = () => setIsCollapsed((prev) => !prev);
 
@@ -76,6 +71,117 @@ const RemoveService = () => {
 
   const closeServiceDetails = () => {
     setSelectedService(null);
+  };
+
+  const startEditing = (service) => {
+    setEditingService({
+      ...service,
+      previewImage: service.images,
+      newImage: null,
+    });
+  };
+
+  const closeEditing = () => {
+    setEditingService(null);
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditingService((prev) => ({
+      ...prev,
+      [name]: name === "price" || name === "duration" ? Number(value) : value,
+    }));
+  };
+
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      // 5MB limit
+      setError("Image size should be less than 5MB");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setEditingService((prev) => ({
+        ...prev,
+        previewImage: reader.result,
+        newImage: file,
+      }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeImage = () => {
+    setEditingService((prev) => ({
+      ...prev,
+      previewImage: null,
+      newImage: null,
+    }));
+    if (editFileInputRef.current) {
+      editFileInputRef.current.value = "";
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    try {
+      const token = JSON.parse(localStorage.getItem("user"))?.token;
+
+      if (!token) {
+        throw new Error("Authentication token not found. Please login again.");
+      }
+
+      const formData = new FormData();
+      formData.append("name", editingService.name);
+      formData.append("price", editingService.price.toString());
+      formData.append("duration", editingService.duration.toString());
+
+      // Correcting category_id assignment
+      const categoryId =
+        editingService.category?.id || editingService.category?.id;
+      if (!categoryId) {
+        throw new Error("Category ID not found");
+      }
+      formData.append("category_id", categoryId);
+
+      if (editingService.description) {
+        formData.append("description", editingService.description);
+      }
+      if (editingService.newImage) {
+        formData.append("images", editingService.newImage);
+      }
+
+      const response = await fetch(
+        `${Config.API_URL}/services/${editingService.id}/`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const updatedService = await response.json();
+      setServices((prevServices) =>
+        prevServices.map((service) =>
+          service.id === updatedService.id ? updatedService : service
+        )
+      );
+      closeEditing();
+      if (selectedService?.id === updatedService.id) {
+        setSelectedService(updatedService);
+      }
+    } catch (err) {
+      setError("Failed to update service: " + err.message);
+      console.error("Error updating service:", err);
+    }
   };
 
   const handleDelete = async (id) => {
@@ -98,12 +204,11 @@ const RemoveService = () => {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
-      // Update the services state after successful deletion
-      const updatedServices = services.filter((service) => service.id !== id);
-      setServices(updatedServices);
+      setServices((prevServices) =>
+        prevServices.filter((service) => service.id !== id)
+      );
 
-      // If the deleted service is currently being viewed, close the details
-      if (selectedService && selectedService.id === id) {
+      if (selectedService?.id === id) {
         setSelectedService(null);
       }
     } catch (err) {
@@ -112,12 +217,10 @@ const RemoveService = () => {
     }
   };
 
-  // Search filter - search by service name
   const filteredServices = services.filter((service) =>
     service.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Pagination logic
   const indexOfLastService = currentPage * servicesPerPage;
   const indexOfFirstService = indexOfLastService - servicesPerPage;
   const currentServices = filteredServices.slice(
@@ -138,7 +241,7 @@ const RemoveService = () => {
           <div className="p-8 max-w-6xl mx-auto rounded-lg shadow-lg bg-white">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-4xl font-extrabold text-gray-900">
-                Remove Service
+                Manage Services
               </h2>
               <div className="relative">
                 <Search
@@ -218,14 +321,23 @@ const RemoveService = () => {
                           <td className="py-3 px-6">
                             <div className="flex space-x-2">
                               <button
-                                className="bg-blue-500 text-white px-3 py-2 rounded-full hover:bg-blue-700 flex items-center justify-center"
+                                className="bg-blue-500 text-white px-3 py-2 rounded-full hover:bg-blue-700 flex items-center justify-center cursor-pointer"
                                 onClick={() => viewServiceDetails(service)}
+                                title="View Details"
                               >
                                 <Eye size={16} />
                               </button>
                               <button
-                                className="bg-red-500 text-white px-3 py-2 rounded-full hover:bg-red-700 flex items-center justify-center"
+                                className="bg-yellow-500 text-white px-3 py-2 rounded-full hover:bg-yellow-700 flex items-center justify-center cursor-pointer"
+                                onClick={() => startEditing(service)}
+                                title="Edit Service"
+                              >
+                                <Edit2 size={16} />
+                              </button>
+                              <button
+                                className="bg-red-500 text-white px-3 py-2 rounded-full hover:bg-red-700 flex items-center justify-center cursor-pointer"
                                 onClick={() => handleDelete(service.id)}
+                                title="Delete Service"
                               >
                                 <Trash2 size={16} />
                               </button>
@@ -284,7 +396,7 @@ const RemoveService = () => {
                     </h3>
                     <button
                       onClick={closeServiceDetails}
-                      className="text-gray-500 hover:text-gray-800"
+                      className="text-gray-500 hover:text-gray-800 cursor-pointer"
                     >
                       ✕
                     </button>
@@ -354,21 +466,33 @@ const RemoveService = () => {
 
                   <div className="mt-6 flex justify-between">
                     <button
-                      className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
+                      className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded cursor-pointer"
                       onClick={closeServiceDetails}
                     >
                       Close
                     </button>
-                    <button
-                      className="bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded flex items-center gap-2"
-                      onClick={() => {
-                        handleDelete(selectedService.id);
-                        closeServiceDetails();
-                      }}
-                    >
-                      <Trash2 size={16} />
-                      Delete Service
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        className="bg-yellow-500 hover:bg-yellow-700 text-white px-4 py-2 rounded flex items-center gap-2 cursor-pointer"
+                        onClick={() => {
+                          startEditing(selectedService);
+                          closeServiceDetails();
+                        }}
+                      >
+                        <Edit2 size={16} />
+                        Edit Service
+                      </button>
+                      <button
+                        className="bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded flex items-center gap-2 cursor-pointer"
+                        onClick={() => {
+                          handleDelete(selectedService.id);
+                          closeServiceDetails();
+                        }}
+                      >
+                        <Trash2 size={16} />
+                        Delete Service
+                      </button>
+                    </div>
                   </div>
 
                   <div className="mt-6">
@@ -402,6 +526,147 @@ const RemoveService = () => {
                         </div>
                       )}
                     </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Edit Service Modal */}
+            {editingService && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white p-6 rounded-lg shadow-xl max-w-2xl w-full">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-2xl font-bold">Edit Service</h3>
+                    <button
+                      onClick={closeEditing}
+                      className="text-gray-500 hover:text-gray-800 cursor-pointer"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  <div className="grid gap-4">
+                    <div>
+                      <label
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                        htmlFor="name"
+                      >
+                        Service Name
+                      </label>
+                      <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        value={editingService.name}
+                        onChange={handleEditChange}
+                        className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                        htmlFor="description"
+                      >
+                        Description
+                      </label>
+                      <textarea
+                        id="description"
+                        name="description"
+                        value={editingService.description || ""}
+                        onChange={handleEditChange}
+                        rows={3}
+                        className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                          htmlFor="price"
+                        >
+                          Price ($)
+                        </label>
+                        <input
+                          type="number"
+                          id="price"
+                          name="price"
+                          value={editingService.price}
+                          onChange={handleEditChange}
+                          min="0"
+                          step="0.01"
+                          className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                          htmlFor="duration"
+                        >
+                          Duration (minutes)
+                        </label>
+                        <input
+                          type="number"
+                          id="duration"
+                          name="duration"
+                          value={editingService.duration}
+                          onChange={handleEditChange}
+                          min="0"
+                          className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Image Upload */}
+                    <div>
+                      <label className="block text-gray-700 font-medium mb-2">
+                        Service Image
+                      </label>
+                      <div className="bg-gray-50 p-4 border-2 border-dashed border-gray-300 rounded-lg">
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png,image/gif"
+                          onChange={handleImageChange}
+                          ref={editFileInputRef}
+                          className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-gray-400 focus:outline-none"
+                        />
+                      </div>
+                      {editingService.previewImage && (
+                        <div className="mt-4 relative w-32">
+                          <img
+                            src={editingService.previewImage}
+                            alt="Preview"
+                            className="w-32 h-32 object-cover rounded-lg border border-gray-300 shadow-md"
+                          />
+                          {editingService.newImage && (
+                            <button
+                              type="button"
+                              onClick={removeImage}
+                              className="absolute top-0 right-0 bg-red-600 text-white p-1 rounded-full shadow-md hover:bg-red-700"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex justify-end space-x-3">
+                    <button
+                      className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                      onClick={closeEditing}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                      onClick={handleSaveEdit}
+                    >
+                      Save Changes
+                    </button>
                   </div>
                 </div>
               </div>
