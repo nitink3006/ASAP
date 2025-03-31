@@ -120,7 +120,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
             }
           >
             <TrashIcon className="h-5 w-5 mr-2 text-black" />
-            <span>Remove Service</span>
+            <span>Manage Service</span>
           </NavLink>
 
           {/* Separator */}

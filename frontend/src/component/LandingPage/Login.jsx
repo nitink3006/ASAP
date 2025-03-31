@@ -14,7 +14,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [userType, setUserType] = useState('admin');
+  const [userType, setUserType] = useState("admin");
   const navigate = useNavigate();
 
   const handleEmailChange = async (e) => {
@@ -28,7 +28,7 @@ const Login = () => {
         //   body: JSON.stringify({ email: emailInput }),
         // });
         // const data = await response.json();
-        setUserType('admin');
+        setUserType("admin");
 
         // if (response.ok) {
         //   setUserType(data.user_type);
@@ -37,7 +37,6 @@ const Login = () => {
         setError("Failed to check user type");
       }
     }
-    
   };
 
   const handleSubmit = async (e) => {
@@ -54,7 +53,10 @@ const Login = () => {
       const data = await response.json();
       if (response.ok) {
         localStorage.setItem("user", JSON.stringify(data));
-        toast.success("Login Successful!", { position: "top-right", autoClose: 1000 });
+        toast.success("Login Successful!", {
+          position: "top-right",
+          autoClose: 1000,
+        });
         setTimeout(() => {
           navigate(data.user_type === "admin" ? "/order" : "/");
         }, 2500);
@@ -67,7 +69,10 @@ const Login = () => {
   };
 
   const handleSendOtp = () => {
-    toast.info("OTP sent to your email", { position: "top-right", autoClose: 1000 });
+    toast.info("OTP sent to your email", {
+      position: "top-right",
+      autoClose: 1000,
+    });
   };
 
   return (
@@ -76,14 +81,18 @@ const Login = () => {
       <ToastContainer />
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="bg-white p-8 rounded-lg shadow-2xl w-full max-w-md">
-          <h2 className="text-3xl font-semibold text-center text-gray-800">Welcome Back</h2>
+          <h2 className="text-3xl font-semibold text-center text-gray-800">
+            Welcome Back
+          </h2>
           <p className="text-gray-500 text-center mt-2">Sign in to continue</p>
 
           {error && <p className="text-red-500 text-center mt-2">{error}</p>}
 
           <form className="mt-6" onSubmit={handleSubmit}>
             <div className="mb-4">
-              <label className="block text-gray-700 font-medium mb-2">Email</label>
+              <label className="block text-gray-700 font-medium mb-2">
+                Email
+              </label>
               <div className="flex items-center border rounded-lg p-2 bg-gray-100">
                 <FaUser className="text-gray-500 mr-2" />
                 <input
@@ -99,7 +108,9 @@ const Login = () => {
 
             {userType === "admin" && (
               <div className="mb-4">
-                <label className="block text-gray-700 font-medium mb-2">Password</label>
+                <label className="block text-gray-700 font-medium mb-2">
+                  Password
+                </label>
                 <div className="flex items-center border rounded-lg p-2 bg-gray-100 relative">
                   <FaLock className="text-gray-500 mr-2" />
                   <input
@@ -142,7 +153,10 @@ const Login = () => {
 
           <p className="text-center text-gray-500 mt-4">
             Don't have an account?{" "}
-            <Link to="/signup" className="text-gray-700 font-medium hover:underline">
+            <Link
+              to="/signup"
+              className="text-gray-700 font-medium hover:underline"
+            >
               Create Account
             </Link>
           </p>
