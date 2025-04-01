@@ -3,8 +3,10 @@ import {
   FiTrash2,
   FiSearch,
   FiX,
+  FiEdit2,
   FiChevronLeft,
   FiChevronRight,
+  FiSave,
 } from "react-icons/fi";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
@@ -17,18 +19,20 @@ const AddCategory = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [categoryName, setCategoryName] = useState("");
-  const [zipCode, setZipCode] = useState(""); // Added zip code state
+  const [zipCode, setZipCode] = useState("");
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const fileInputRef = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [editImage, setEditImage] = useState(null);
+  const [editPreview, setEditPreview] = useState("");
   const S = JSON.parse(localStorage.getItem("user"));
   const token = S.token;
-  console.log("Data", S);
 
   const [categories, setCategories] = useState([]);
-
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
 
@@ -51,11 +55,96 @@ const AddCategory = () => {
     }
   };
 
+  const handleEditImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setEditImage(file);
+      setEditPreview(URL.createObjectURL(file));
+    }
+  };
+
   const removeImage = () => {
     setImage(null);
     setPreview("");
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
+    }
+  };
+
+  const removeEditImage = () => {
+    setEditImage(null);
+    setEditPreview("");
+  };
+
+  const handleEdit = (category) => {
+    setEditingCategory({
+      ...category,
+      name: category.category,
+    });
+    setEditPreview(category.image);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const formData = new FormData();
+    formData.append("name", editingCategory.name);
+    formData.append("zip_code", editingCategory.zipcode);
+    if (editImage) {
+      formData.append("images", editImage);
+    }
+
+    try {
+      const response = await fetch(
+        `${Config.API_URL}/service-categories/${editingCategory.id}/`,
+        {
+          method: "PUT",
+          body: formData,
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success("Category updated successfully!", {
+          position: "top-right",
+          autoClose: 1000,
+        });
+
+        // Update categories list
+        setCategories(
+          categories.map((cat) =>
+            cat.id === editingCategory.id
+              ? {
+                  ...cat,
+                  category: editingCategory.name,
+                  zipcode: editingCategory.zipcode,
+                  image: editPreview || cat.image,
+                }
+              : cat
+          )
+        );
+
+        setIsEditModalOpen(false);
+        setEditingCategory(null);
+        setEditImage(null);
+        setEditPreview("");
+      } else {
+        toast.error(data.message || "Failed to update category.", {
+          position: "top-right",
+        });
+      }
+    } catch (err) {
+      toast.error("Something went wrong. Please try again.", {
+        position: "top-right",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -66,7 +155,7 @@ const AddCategory = () => {
 
     const formData = new FormData();
     formData.append("name", categoryName);
-    formData.append("zip_code", zipCode); // Added zip code to form data
+    formData.append("zip_code", zipCode);
     if (image) {
       formData.append("images", image);
     }
@@ -90,12 +179,15 @@ const AddCategory = () => {
 
         // Reset form
         setCategoryName("");
-        setZipCode(""); // Reset zip code
+        setZipCode("");
         setImage(null);
         setPreview("");
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }
+
+        // Refresh categories
+        fetchCategories();
       } else {
         setError(data.message || "Failed to add category.");
         toast.error(data.message || "Failed to add category.", {
@@ -112,19 +204,43 @@ const AddCategory = () => {
     }
   };
 
-  const handleDelete = (id) => {
-    setCategories(categories.filter((category) => category.id !== id));
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch(
+        `${Config.API_URL}/service-categories/${id}/`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        toast.success("Category deleted successfully!", {
+          position: "top-right",
+          autoClose: 1000,
+        });
+        setCategories(categories.filter((category) => category.id !== id));
+      } else {
+        toast.error("Failed to delete category.", {
+          position: "top-right",
+        });
+      }
+    } catch (err) {
+      toast.error("Something went wrong. Please try again.", {
+        position: "top-right",
+      });
+    }
   };
 
-  // Ensure categories is an array and filter safely
   const filteredCategories = (categories || []).filter(
     (cat) =>
       cat?.service?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       cat?.category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      cat?.zipcode?.toLowerCase().includes(searchQuery.toLowerCase()) // Added zip code to search filter
+      cat?.zipcode?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Pagination logic
   const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const displayedCategories = filteredCategories.slice(
@@ -132,35 +248,37 @@ const AddCategory = () => {
     startIndex + itemsPerPage
   );
 
-  useEffect(() => {
-    fetch(`${Config.API_URL}/service-categories/`, {
-      headers: {
-        Authorization: `Token ${token}`,
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to fetch categories");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        // Transform the data to match expected structure
-        const transformedData = data.map((cat) => ({
-          id: cat.id,
-          category: cat.name, // Change 'name' to 'category' as expected in JSX
-          image: cat.images, // Change 'images' to 'image' as expected in JSX
-          zipcode: cat.zipcode || "", // Include zip code in transformed data
-        }));
-
-        setCategories(transformedData);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching categories:", error);
-        setError(error.message);
-        setLoading(false);
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch(`${Config.API_URL}/service-categories/`, {
+        headers: {
+          Authorization: `Token ${token}`,
+        },
       });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch categories");
+      }
+
+      const data = await response.json();
+      const transformedData = data.map((cat) => ({
+        id: cat.id,
+        category: cat.name,
+        image: cat.images,
+        zipcode: cat.zip_code || "",
+      }));
+
+      setCategories(transformedData);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
   }, []);
 
   if (loading && categories.length === 0) {
@@ -201,7 +319,6 @@ const AddCategory = () => {
                 />
               </div>
 
-              {/* New Zip Code Field */}
               <div>
                 <label className="block text-gray-700 font-medium mb-2">
                   Zip Code
@@ -305,16 +422,28 @@ const AddCategory = () => {
                           <img
                             src={cat.image}
                             alt="Category"
-                            className="w-12 h-12 rounded-lg mx-auto"
+                            className="w-12 h-12 rounded-lg mx-auto object-cover cursor-pointer"
+                            onClick={() => {
+                              setPreview(cat.image);
+                              setIsModalOpen(true);
+                            }}
                           />
                         </td>
                         <td className="p-4 text-center">
-                          <button
-                            onClick={() => handleDelete(cat.id)}
-                            className="bg-red-600 text-white p-2 rounded-md hover:bg-red-700 transition"
-                          >
-                            <FiTrash2 />
-                          </button>
+                          <div className="flex justify-center space-x-2">
+                            <button
+                              onClick={() => handleEdit(cat)}
+                              className="bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition cursor-pointer"
+                            >
+                              <FiEdit2 />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(cat.id)}
+                              className="bg-red-600 text-white p-2 rounded-md hover:bg-red-700 transition cursor-pointer"
+                            >
+                              <FiTrash2 />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -328,11 +457,40 @@ const AddCategory = () => {
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center mt-4 space-x-2">
+                <button
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.max(prev - 1, 1))
+                  }
+                  disabled={currentPage === 1}
+                  className="p-2 rounded-lg bg-gray-200 hover:bg-gray-300 disabled:opacity-50 cursor-pointer"
+                >
+                  <FiChevronLeft />
+                </button>
+                <span className="text-gray-600">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                  }
+                  disabled={currentPage === totalPages}
+                  className="p-2 rounded-lg bg-gray-200 hover:bg-gray-300 disabled:opacity-50 cursor-pointer"
+                >
+                  <FiChevronRight />
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Preview Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50">
           <div className="relative bg-white p-4 rounded-lg shadow-lg max-w-lg">
             <button
               onClick={() => setIsModalOpen(false)}
@@ -345,6 +503,119 @@ const AddCategory = () => {
               alt="Full Preview"
               className="w-full h-auto rounded-lg"
             />
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {isEditModalOpen && editingCategory && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50">
+          <div className="relative bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-4">
+            <button
+              onClick={() => {
+                setIsEditModalOpen(false);
+                setEditingCategory(null);
+                setEditImage(null);
+                setEditPreview("");
+              }}
+              className="absolute top-2 right-2 bg-gray-700 text-white p-2 rounded-full hover:bg-gray-800 cursor-pointer"
+            >
+              <FiX size={20} />
+            </button>
+            <h3 className="text-2xl font-bold mb-4">Edit Category</h3>
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div>
+                <label className="block text-gray-700 font-medium mb-2">
+                  Category Name
+                </label>
+                <input
+                  type="text"
+                  value={editingCategory.name}
+                  onChange={(e) =>
+                    setEditingCategory({
+                      ...editingCategory,
+                      name: e.target.value,
+                    })
+                  }
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-gray-400 focus:outline-none"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 font-medium mb-2">
+                  Zip Code
+                </label>
+                <input
+                  type="text"
+                  value={editingCategory.zipcode}
+                  onChange={(e) =>
+                    setEditingCategory({
+                      ...editingCategory,
+                      zipcode: e.target.value,
+                    })
+                  }
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-gray-400 focus:outline-none"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 font-medium mb-2">
+                  Update Image
+                </label>
+                <div className="bg-gray-50 p-4 border-2 border-dashed border-gray-300 rounded-lg">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleEditImageChange}
+                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-gray-400 focus:outline-none"
+                  />
+                </div>
+
+                {editPreview && (
+                  <div className="mt-4 relative w-32">
+                    <img
+                      src={editPreview}
+                      alt="Preview"
+                      className="w-32 h-32 object-cover rounded-lg border border-gray-300 shadow-md"
+                    />
+                    {editImage && (
+                      <button
+                        type="button"
+                        onClick={removeEditImage}
+                        className="absolute top-0 right-0 bg-red-600 text-white p-1 rounded-full shadow-md hover:bg-red-700"
+                      >
+                        <FiTrash2 size={16} />
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-end space-x-2 pt-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsEditModalOpen(false);
+                    setEditingCategory(null);
+                    setEditImage(null);
+                    setEditPreview("");
+                  }}
+                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center cursor-pointer"
+                  disabled={loading}
+                >
+                  <FiSave className="mr-2" />
+                  {loading ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

@@ -101,10 +101,7 @@ const AddService = () => {
       // Prepare data for API
       const formData = new FormData();
       formData.append("name", serviceName);
-      formData.append(
-        "category_id",
-        selectedServiceObj?.sub_category?.id || ""
-      ); // Use sub_category.id instead
+      formData.append("category_id", selectedServiceObj?.id || ""); // Use sub_category.id instead
       formData.append("price", price);
       formData.append("description", description);
       formData.append("duration", duration);
@@ -196,9 +193,8 @@ const AddService = () => {
                     <option value="">Select a service</option>
                     {services.map((srv) => (
                       <option key={srv.id} value={srv.id}>
-                        {srv.name} -{" "}
-                        {srv.sub_category?.name || "No Subcategory"} -{" "}
-                        {srv.category?.name || "No Category"}
+                        {srv.name} - {srv.category?.name || "No Subcategory"} -{" "}
+                        {srv.category.category?.name || "No Category"}
                       </option>
                     ))}
                   </select>
@@ -215,7 +211,7 @@ const AddService = () => {
                       className="mt-1 block w-full p-3 border border-gray-300 rounded-md bg-gray-50"
                       value={
                         services.find((s) => s.id === selectedService)?.category
-                          ?.name || ""
+                          ?.category.name || ""
                       }
                       readOnly
                     />
@@ -232,8 +228,8 @@ const AddService = () => {
                       type="text"
                       className="mt-1 block w-full p-3 border border-gray-300 rounded-md bg-gray-50"
                       value={
-                        services.find((s) => s.id === selectedService)
-                          ?.sub_category?.name || ""
+                        services.find((s) => s.id === selectedService)?.category
+                          ?.name || ""
                       }
                       readOnly
                     />

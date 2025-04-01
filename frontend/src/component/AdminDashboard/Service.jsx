@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { FiTrash2, FiSearch, FiX } from "react-icons/fi";
+import { FiTrash2, FiSearch, FiX, FiEdit2, FiSave } from "react-icons/fi";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 import Config from "../../Config";
@@ -14,6 +14,8 @@ const Service = () => {
   const [serviceImage, setServiceImage] = useState(null);
   const [preview, setPreview] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [editingService, setEditingService] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   // Improved state for categories and subcategories
   const [categories, setCategories] = useState([]);
@@ -22,6 +24,7 @@ const Service = () => {
   const [subcategory, setSubcategory] = useState("");
 
   const fileInputRef = useRef(null);
+  const editFileInputRef = useRef(null);
   const token = JSON.parse(localStorage.getItem("user"))?.token;
   const [services, setServices] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -107,7 +110,7 @@ const Service = () => {
   }, [fetchCategories, fetchSubCategories, fetchServices]);
 
   // Image handling with improved validation
-  const handleImageChange = (e) => {
+  const handleImageChange = (e, isEdit = false) => {
     const file = e.target.files[0];
     if (file) {
       // Image type and size validation
@@ -124,29 +127,49 @@ const Service = () => {
         return;
       }
 
-      setServiceImage(file);
-      setPreview(URL.createObjectURL(file));
+      if (isEdit) {
+        setEditingService((prev) => ({
+          ...prev,
+          newImage: file,
+          previewImage: URL.createObjectURL(file),
+        }));
+      } else {
+        setServiceImage(file);
+        setPreview(URL.createObjectURL(file));
+      }
     }
   };
 
-  const removeImage = () => {
-    setServiceImage(null);
-    setPreview("");
-    if (fileInputRef.current) fileInputRef.current.value = "";
+  const removeImage = (isEdit = false) => {
+    if (isEdit) {
+      setEditingService((prev) => ({
+        ...prev,
+        newImage: null,
+        previewImage: prev.images,
+      }));
+      if (editFileInputRef.current) editFileInputRef.current.value = "";
+    } else {
+      setServiceImage(null);
+      setPreview("");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
   };
 
-  const handleCategoryChange = (e) => {
+  const handleCategoryChange = (e, isEdit = false) => {
     const selectedCategory = e.target.value;
-    setCategory(selectedCategory);
-    setSubcategory(""); // Reset subcategory
+    if (isEdit) {
+      setEditingService((prev) => ({
+        ...prev,
+        category: { name: selectedCategory },
+        sub_category: { name: "" },
+      }));
+    } else {
+      setCategory(selectedCategory);
+      setSubcategory("");
+    }
   };
 
-  // Memoized filtered subcategories
-  const filteredSubcategories = subCategories.filter(
-    (subcat) => subcat.category.name === category
-  );
-
-  // Improved submit handler with more robust error handling
+  // Improved submit handler with robust error handling
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -174,7 +197,7 @@ const Service = () => {
     const categoryId = selectedCategoryObj ? selectedCategoryObj.id : null;
 
     // Find the subcategory ID
-    const selectedSubcategoryObj = filteredSubcategories.find(
+    const selectedSubcategoryObj = getFilteredSubcategories(category).find(
       (subcat) => subcat.name === subcategory
     );
     const subcategoryId = selectedSubcategoryObj
@@ -195,8 +218,8 @@ const Service = () => {
 
     const formData = new FormData();
     formData.append("name", serviceName);
-    formData.append("category_id", categoryId);
-    formData.append("sub_category_id", subcategoryId);
+    // formData.append("category_id", categoryId);
+    formData.append("category_id", subcategoryId);
     if (serviceImage) formData.append("images", serviceImage);
 
     try {
@@ -218,13 +241,79 @@ const Service = () => {
         fetchServices();
       } else {
         const errorData = await response.json();
-        toast.error(errorData.message || "Failed to add service");
+        throw new Error(errorData.message || "Failed to add service");
       }
     } catch (error) {
       handleError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
+  };
+
+  // Start editing a service
+  const startEditing = (service) => {
+    setEditingService({
+      ...service,
+      previewImage: service.images,
+      newImage: null,
+    });
+    setIsEditModalOpen(true);
+  };
+
+  // Handle edit form submission
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("name", editingService.name);
+
+      // Find category and subcategory IDs
+      const selectedCategory = categories.find(
+        (cat) => cat.name === editingService.category.name
+      );
+      const selectedSubcategory = subCategories.find(
+        (subcat) =>
+          subcat.name === editingService.sub_category.name &&
+          subcat.category.name === editingService.category.name
+      );
+
+      if (selectedCategory) formData.append("category_id", selectedCategory.id);
+      if (selectedSubcategory)
+        formData.append("sub_category_id", selectedSubcategory.id);
+      if (editingService.newImage)
+        formData.append("images", editingService.newImage);
+
+      const response = await fetch(
+        `${Config.API_URL}/service-single/${editingService.id}/`,
+        {
+          method: "PUT",
+          body: formData,
+          headers: { Authorization: `Token ${token}` },
+        }
+      );
+
+      if (response.ok) {
+        toast.success("Service updated successfully!");
+        setIsEditModalOpen(false);
+        fetchServices();
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to update service");
+      }
+    } catch (error) {
+      handleError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Get filtered subcategories for a category
+  const getFilteredSubcategories = (categoryName) => {
+    return subCategories.filter(
+      (subcat) => subcat.category.name === categoryName
+    );
   };
 
   // Open full image preview
@@ -278,7 +367,7 @@ const Service = () => {
                 </label>
                 <select
                   value={category}
-                  onChange={handleCategoryChange}
+                  onChange={(e) => handleCategoryChange(e, false)}
                   className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-gray-400"
                   required
                 >
@@ -305,12 +394,12 @@ const Service = () => {
                 >
                   <option value="">
                     {category
-                      ? filteredSubcategories.length === 0
+                      ? getFilteredSubcategories(category).length === 0
                         ? "No subcategories found"
                         : "Select Subcategory"
                       : "Select a category first"}
                   </option>
-                  {filteredSubcategories.map((subcat) => (
+                  {getFilteredSubcategories(category).map((subcat) => (
                     <option key={subcat.id} value={subcat.name}>
                       {subcat.name}
                     </option>
@@ -327,7 +416,7 @@ const Service = () => {
                   <input
                     type="file"
                     accept="image/jpeg,image/png,image/gif"
-                    onChange={handleImageChange}
+                    onChange={(e) => handleImageChange(e, false)}
                     ref={fileInputRef}
                     className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-gray-400 focus:outline-none"
                   />
@@ -346,7 +435,7 @@ const Service = () => {
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        removeImage();
+                        removeImage(false);
                       }}
                       className="absolute top-0 right-0 bg-red-600 text-white p-1 rounded-full shadow-md hover:bg-red-700"
                     >
@@ -368,13 +457,13 @@ const Service = () => {
           </div>
 
           {/* Services Table */}
-          <div className="p-6 max-w-4xl mx-auto bg-white shadow-xl rounded-xl mt-10">
+          <div className="p-6 max-w-4xl mx-auto bg-white shadow-xl rounded-xl mt-10 mb-10">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-2xl font-bold text-gray-900">Services</h3>
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Search..."
+                  placeholder="Search services..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-gray-400 focus:outline-none"
@@ -385,58 +474,223 @@ const Service = () => {
                 />
               </div>
             </div>
-            <table className="w-full border-collapse">
-              <thead className="bg-gray-800 text-white">
-                <tr>
-                  <th className="p-4 text-left">Service</th>
-                  <th className="p-4 text-center">Category</th>
-                  <th className="p-4 text-center">Subcategory</th>
-                  <th className="p-4 text-center">Image</th>
-                  <th className="p-4 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredServices.length > 0 ? (
-                  filteredServices.map((srv) => (
-                    <tr key={srv.id} className="border-b">
-                      <td className="p-4">{srv.name}</td>
-                      <td className="p-4 text-center">
-                        {srv.category?.name || "N/A"}
-                      </td>
-                      <td className="p-4 text-center">
-                        {srv.sub_category?.name || "N/A"}
-                      </td>
-
-                      <td className="p-4 text-center">
-                        <img
-                          src={srv.images}
-                          alt="Service"
-                          onClick={() => openFullImagePreview(srv.images)}
-                          className="w-12 h-12 rounded-lg mx-auto cursor-pointer hover:opacity-75 transition-opacity"
-                        />
-                      </td>
-                      <td className="p-4 text-center">
-                        <button
-                          className="bg-red-600 text-white p-2 rounded-md hover:bg-red-700"
-                          // Add delete functionality here
-                        >
-                          <FiTrash2 />
-                        </button>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead className="bg-gray-800 text-white">
+                  <tr>
+                    <th className="p-4 text-left">Service</th>
+                    <th className="p-4 text-center">Category</th>
+                    <th className="p-4 text-center">Subcategory</th>
+                    <th className="p-4 text-center">Image</th>
+                    <th className="p-4 text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredServices.length > 0 ? (
+                    filteredServices.map((srv) => (
+                      <tr key={srv.id} className="border-b hover:bg-gray-50">
+                        <td className="p-4">{srv.name}</td>
+                        <td className="p-4 text-center">
+                          {srv.category.category?.name || "N/A"}
+                        </td>
+                        <td className="p-4 text-center">
+                          {srv.category?.name || "N/A"}
+                        </td>
+                        <td className="p-4 text-center">
+                          <img
+                            src={srv.images}
+                            alt="Service"
+                            onClick={() => openFullImagePreview(srv.images)}
+                            className="w-12 h-12 rounded-lg mx-auto cursor-pointer hover:opacity-75 transition-opacity object-cover"
+                          />
+                        </td>
+                        <td className="p-4 text-center">
+                          <div className="flex justify-center space-x-2">
+                            <button
+                              onClick={() => startEditing(srv)}
+                              className="bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition-colors cursor-pointer"
+                              title="Edit"
+                            >
+                              <FiEdit2 size={16} />
+                            </button>
+                            <button
+                              className="bg-red-600 text-white p-2 rounded-md hover:bg-red-700 transition-colors cursor-pointer"
+                              title="Delete"
+                            >
+                              <FiTrash2 size={16} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="5" className="p-4 text-center text-gray-500">
+                        No services found
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="5" className="p-4 text-center text-gray-500">
-                      No Services found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Edit Service Modal */}
+      {isEditModalOpen && editingService && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 max-w-2xl w-full m-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl font-bold text-gray-900">Edit Service</h3>
+              <button
+                onClick={() => setIsEditModalOpen(false)}
+                className="text-gray-500 hover:text-gray-700 cursor-pointer"
+              >
+                <FiX size={24} />
+              </button>
+            </div>
+
+            <form onSubmit={handleEditSubmit} className="space-y-6">
+              {/* Service Name */}
+              <div>
+                <label className="block text-gray-700 font-medium mb-2">
+                  Service Name
+                </label>
+                <input
+                  type="text"
+                  value={editingService.name}
+                  onChange={(e) =>
+                    setEditingService((prev) => ({
+                      ...prev,
+                      name: e.target.value,
+                    }))
+                  }
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-gray-400"
+                  required
+                />
+              </div>
+
+              {/* Category */}
+              <div>
+                <label className="block text-gray-700 font-medium mb-2">
+                  Category
+                </label>
+                <select
+                  value={editingService.category.name}
+                  onChange={(e) => handleCategoryChange(e, true)}
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-gray-400"
+                  required
+                >
+                  <option value="">Select Category</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.name}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Subcategory */}
+              <div>
+                <label className="block text-gray-700 font-medium mb-2">
+                  Subcategory
+                </label>
+                <select
+                  value={editingService.sub_category.name}
+                  onChange={(e) =>
+                    setEditingService((prev) => ({
+                      ...prev,
+                      sub_category: { name: e.target.value },
+                    }))
+                  }
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-gray-400"
+                  required
+                >
+                  <option value="">Select Subcategory</option>
+                  {getFilteredSubcategories(editingService.category.name).map(
+                    (subcat) => (
+                      <option key={subcat.id} value={subcat.name}>
+                        {subcat.name}
+                      </option>
+                    )
+                  )}
+                </select>
+              </div>
+
+              {/* Image Upload */}
+              <div>
+                <label className="block text-gray-700 font-medium mb-2">
+                  Service Image
+                </label>
+                <div className="bg-gray-50 p-4 border-2 border-dashed border-gray-300 rounded-lg">
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/gif"
+                    onChange={(e) => handleImageChange(e, true)}
+                    ref={editFileInputRef}
+                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-gray-400 focus:outline-none"
+                  />
+                </div>
+                {editingService.previewImage && (
+                  <div className="mt-4 relative w-32">
+                    <img
+                      src={editingService.previewImage}
+                      alt="Preview"
+                      className="w-32 h-32 object-cover rounded-lg border border-gray-300 shadow-md"
+                    />
+                    {editingService.newImage && (
+                      <button
+                        type="button"
+                        onClick={() => removeImage(true)}
+                        className="absolute top-0 right-0 bg-red-600 text-white p-1 rounded-full shadow-md hover:bg-red-700"
+                      >
+                        <FiTrash2 size={16} />
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Submit Buttons */}
+
+              <div className="flex justify-end space-x-2 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center cursor-pointer"
+                  disabled={loading}
+                >
+                  <FiSave className="mr-2" />
+                  {loading ? "Updating..." : "Update Service"}
+                </button>
+              </div>
+              {/* <div className="flex space-x-4">
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-colors"
+                  disabled={loading}
+                >
+                  {loading ? "Updating..." : "Update Service"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="flex-1 bg-gray-300 text-gray-700 p-3 rounded-lg hover:bg-gray-400 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div> */}
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Full Image Preview Modal */}
       {isModalOpen && (
