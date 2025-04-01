@@ -1,3 +1,4 @@
+import Chatbot from "./Chatbot";
 import Banner from "./Home/Banner";
 import CustomerFeedback from "./Home/CustomerFeedback";
 import Footer from "./Home/Footer";
@@ -8,6 +9,7 @@ const Home = () => {
   return (
     <div>
       <Navbar />
+      <Chatbot />
       <Banner />
       <Services />
       <CustomerFeedback />

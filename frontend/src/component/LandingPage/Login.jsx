@@ -7,40 +7,35 @@ import Footer from "./Home/Footer";
 import Config from "../../Config";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { auth, RecaptchaVerifier, signInWithPhoneNumber } from "../../firebase";
+import firebaseApp from "../../firebase"; 
 
 const Login = () => {
-  const [email, setEmail] = useState("");
+  const [emailOrPhone, setEmailOrPhone] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [userType, setUserType] = useState('admin');
+  const [userType, setUserType] = useState(null);
+  const [otp, setOtp] = useState("");
+  const [confirmationResult, setConfirmationResult] = useState(null);
   const navigate = useNavigate();
+  // const auth = getAuth(firebaseApp);
 
-  const handleEmailChange = async (e) => {
-    const emailInput = e.target.value;
-    setEmail(emailInput);
-    if (emailInput.includes("@")) {
-      try {
-        // const response = await fetch(`${Config.API_URL}/check-user-type`, {
-        //   method: "POST",
-        //   headers: { "Content-Type": "application/json" },
-        //   body: JSON.stringify({ email: emailInput }),
-        // });
-        // const data = await response.json();
-        setUserType('admin');
-
-        // if (response.ok) {
-        //   setUserType(data.user_type);
-        // }
-      } catch (err) {
-        setError("Failed to check user type");
-      }
-    }
+  const handleInputChange = (e) => {
+    const input = e.target.value;
+    setEmailOrPhone(input);
     
+    if (input.includes("@")) {
+      setUserType("admin");
+    } else if (/^\d{10}$/.test(input)) {
+      setUserType("user");
+    } else {
+      setUserType(null);
+    }
   };
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
@@ -49,7 +44,7 @@ const Login = () => {
       const response = await fetch(`${Config.API_URL}/login/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: email, password }),
+        body: JSON.stringify({ username: emailOrPhone, password }),
       });
       const data = await response.json();
       if (response.ok) {
@@ -58,6 +53,8 @@ const Login = () => {
         setTimeout(() => {
           navigate(data.user_type === "admin" ? "/order" : "/");
         }, 2500);
+      } else {
+        setError("Invalid credentials.");
       }
     } catch (err) {
       setError("Something went wrong. Please try again.");
@@ -65,9 +62,54 @@ const Login = () => {
       setLoading(false);
     }
   };
+  const setupRecaptcha = () => {
+    if (!window.recaptchaVerifier) {
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {
+        size: "invisible",
+        callback: () => console.log("ReCAPTCHA verified"),
+      });
+    }
+  };
 
-  const handleSendOtp = () => {
-    toast.info("OTP sent to your email", { position: "top-right", autoClose: 1000 });
+  const handleSendOtp = async () => {
+    if (!/^\d{10}$/.test(emailOrPhone)) {
+      toast.error("Enter a valid 10-digit phone number.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setupRecaptcha(); // Ensure ReCAPTCHA is set up
+      const appVerifier = window.recaptchaVerifier;
+
+      const confirmation = await signInWithPhoneNumber(auth, `+91${emailOrPhone}`, appVerifier);
+      setConfirmationResult(confirmation);
+      toast.info("OTP sent to your phone.");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to send OTP.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!otp) {
+      toast.error("Enter OTP.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await confirmationResult.confirm(otp);
+      toast.success("Phone verified successfully!");
+      localStorage.setItem("user", JSON.stringify({ user_type: "user", phone: emailOrPhone }));
+      navigate("/");
+    } catch (err) {
+      toast.error("Invalid OTP.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -81,17 +123,17 @@ const Login = () => {
 
           {error && <p className="text-red-500 text-center mt-2">{error}</p>}
 
-          <form className="mt-6" onSubmit={handleSubmit}>
+          <form className="mt-6" onSubmit={userType === "admin" ? handleLogin : (e) => e.preventDefault()}>
             <div className="mb-4">
-              <label className="block text-gray-700 font-medium mb-2">Email</label>
+              <label className="block text-gray-700 font-medium mb-2">Email or Phone</label>
               <div className="flex items-center border rounded-lg p-2 bg-gray-100">
                 <FaUser className="text-gray-500 mr-2" />
                 <input
                   type="text"
-                  placeholder="Enter your email"
+                  placeholder="Enter email or phone"
                   className="w-full outline-none bg-transparent"
-                  value={email}
-                  onChange={handleEmailChange}
+                  value={emailOrPhone}
+                  onChange={handleInputChange}
                   required
                 />
               </div>
@@ -121,15 +163,39 @@ const Login = () => {
               </div>
             )}
 
-            {userType === "user" ? (
+            {userType === "user" && !confirmationResult && (
               <button
                 type="button"
                 onClick={handleSendOtp}
                 className="w-full bg-gray-700 text-white py-2 rounded-lg font-semibold hover:bg-gray-800 transition duration-200"
+                disabled={loading}
               >
-                Send OTP
+                {loading ? "Sending OTP..." : "Send OTP"}
               </button>
-            ) : (
+            )}
+
+            {confirmationResult && (
+              <div className="mt-4">
+                <label className="block text-gray-700 font-medium mb-2">Enter OTP</label>
+                <input
+                  type="text"
+                  className="w-full border rounded-lg p-2 bg-gray-100 outline-none"
+                  placeholder="Enter OTP"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                />
+                <button
+                  type="button"
+                  onClick={handleVerifyOtp}
+                  className="w-full bg-gray-700 text-white py-2 mt-4 rounded-lg font-semibold hover:bg-gray-800 transition duration-200"
+                  disabled={loading}
+                >
+                  {loading ? "Verifying..." : "Verify OTP"}
+                </button>
+              </div>
+            )}
+
+            {userType === "admin" && (
               <button
                 type="submit"
                 className="w-full bg-gray-700 text-white py-2 rounded-lg font-semibold hover:bg-gray-800 transition duration-200"
@@ -149,6 +215,7 @@ const Login = () => {
         </div>
       </div>
       <Footer />
+      <div id="recaptcha-container"></div>
     </>
   );
 };
