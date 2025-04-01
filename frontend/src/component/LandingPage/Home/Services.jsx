@@ -138,7 +138,7 @@ const Services = () => {
                                     >
                                         <div className="bg-gray-200 p-2 rounded-lg">
                                             <img
-                                                src={spa}
+                                                src={`${Config.MEDIA_URL}${item.images}`}
                                                 alt={item.name}
                                                 className="w-12 h-12 mx-auto rounded-md"
                                             />

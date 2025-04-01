@@ -54,7 +54,7 @@ const Chatbot = () => {
         <div className="relative">
           <button
             onClick={() => setIsOpen(true)}
-            className={`bg-gray-700 text-white p-4 rounded-full shadow-xl hover:scale-110 transition-transform duration-300 ${animate}`}
+            className={`bg-gray-700 text-white cursor-pointer p-4 rounded-full shadow-xl hover:scale-110 transition-transform duration-300 ${animate}`}
           >
             <FiMessageCircle size={28} />
           </button>
@@ -72,7 +72,7 @@ const Chatbot = () => {
         <div className="fixed bottom-4 right-4 w-96 h-[450px] bg-white shadow-2xl rounded-2xl flex flex-col p-4 border border-gray-200">
           <div className="flex justify-between items-center border-b pb-2 mb-2">
             <h2 className="text-lg font-semibold text-gray-700">ASAP Assistant</h2>
-            <button onClick={() => setIsOpen(false)} className="text-gray-600 hover:text-gray-900">
+            <button onClick={() => setIsOpen(false)} className="text-gray-600 cursor-pointer hover:text-gray-900">
               <FiX size={24} />
             </button>
           </div>
@@ -99,7 +99,7 @@ const Chatbot = () => {
               onKeyPress={(e) => e.key === "Enter" && handleSend()}
               disabled={loading}
             />
-            <button onClick={handleSend} className="bg-gray-700 text-white p-3 rounded-xl hover:scale-105 transition-transform" disabled={loading}>
+            <button onClick={handleSend} className="bg-gray-700 cursor-pointer text-white p-3 rounded-xl hover:scale-105 transition-transform" disabled={loading}>
               <FiSend size={20} />
             </button>
           </div>

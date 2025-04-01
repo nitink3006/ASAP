@@ -33,7 +33,7 @@ export default function HelpCenter() {
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
       <div className="max-w-2xl w-full bg-white shadow-lg rounded-lg p-6">
         <Link to="/">
-          <button className="flex items-center text-black mb-4">
+          <button className="flex items-center text-black mb-4 cursor-pointer">
             <FaArrowLeft className="mr-2" /> Back
           </button>
         </Link>
