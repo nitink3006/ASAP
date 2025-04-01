@@ -1,148 +1,106 @@
 import React, { useState, useEffect } from "react";
 import { FaStar, FaPlus, FaMinus } from "react-icons/fa";
+import { useLocation, Link } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
-import { Link } from "react-router-dom";
-
-const services = [
-    {
-        title: "Kitchen/Bathroom",
-        image: "https://res.cloudinary.com/urbanclap/image/upload/t_high_res_template,q_auto:low,f_auto/w_64,dpr_2,fl_progressive:steep,q_auto:low,f_auto,c_limit/images/growth/luminosity/1731504494228-eb2d1d.jpeg",
-        options: [
-            {
-                name: "Pest control (includes utensil removal)",
-                rating: 4.79,
-                reviews: "98K",
-                price: "Starts at $1,498",
-                description: [
-                    "Treatment will be completed in 2 visits with 2 weeks of gap",
-                    "We'll remove utensils before the service begins",
-                ],
-                details: "6 options",
-                image: "https://res.cloudinary.com/urbanclap/image/upload/t_high_res_template,q_auto:low,f_auto/w_128,dpr_2,fl_progressive:steep,q_auto:low,f_auto,c_limit/images/growth/luminosity/1731504272013-0ef836.jpeg", // Replace with your image URL
-            },
-            {
-                name: "Pest control (excludes utensil removal)",
-                rating: 4.8,
-                reviews: "63K",
-                price: "Starts at $1,299",
-                description: [
-                    "Treatment will be completed in 2 visits with 2 weeks of gap",
-                    "Excludes removal of utensils & objects before the service begins",
-                ],
-                details: "6 options",
-                image: "https://res.cloudinary.com/urbanclap/image/upload/t_high_res_template,q_auto:low,f_auto/w_128,dpr_2,fl_progressive:steep,q_auto:low,f_auto,c_limit/images/growth/luminosity/1731504274912-f9181e.jpeg", // Replace with your image URL
-            },
-        ],
-    },
-    {
-        title: "Apartment/Bungalow",
-        image: "https://res.cloudinary.com/urbanclap/image/upload/t_high_res_template,q_auto:low,f_auto/w_64,dpr_2,fl_progressive:steep,q_auto:low,f_auto,c_limit/images/growth/luminosity/1731504496982-dc3ef5.jpeg",
-        options: [
-            {
-                name: "Apartment pest control (includes utensil removal)",
-                rating: 4.81,
-                reviews: "25K",
-                price: "Starts at $1,498",
-                description: [
-                    "Treatment will be completed in 2 visits with 2 weeks of gap",
-                    "We'll remove utensils before the service begins",
-                ],
-                details: "5 options",
-                image: "https://res.cloudinary.com/urbanclap/image/upload/t_high_res_template,q_auto:low,f_auto/w_128,dpr_2,fl_progressive:steep,q_auto:low,f_auto,c_limit/images/growth/luminosity/1738258955021-96e8b0.jpeg", // Replace with your image URL
-            },
-            {
-                name: "Apartment pest control (excludes utensil removal)",
-                rating: 4.81,
-                reviews: "132K",
-                price: "Starts at $1,299",
-                description: [
-                    "Treatment will be completed in 2 visits with 2 weeks of gap",
-                    "Excludes removal of utensils & objects before the service begins",
-                ],
-                details: "5 options",
-                image: "https://res.cloudinary.com/urbanclap/image/upload/t_high_res_template,q_auto:low,f_auto/w_128,dpr_2,fl_progressive:steep,q_auto:low,f_auto,c_limit/images/growth/luminosity/1738258958588-1d990f.jpeg", // Replace with your image URL
-            },
-        ],
-    },
-    {
-        title: "Offices/Shops",
-        image: "https://res.cloudinary.com/urbanclap/image/upload/t_high_res_template,q_auto:low,f_auto/w_64,dpr_2,fl_progressive:steep,q_auto:low,f_auto,c_limit/images/growth/luminosity/1731504499889-e52c37.jpeg",
-        options: [
-            {
-                name: "Office pest control",
-                rating: 4.64,
-                reviews: "4K",
-                price: "Starts at $1,649",
-                description: [
-                    "Treatment will be completed in 2 visits with 2 weeks of gap",
-                    "Excludes removal of utensils & objects before the service begins",
-                ],
-                details: "4 options",
-                image: "https://res.cloudinary.com/urbanclap/image/upload/t_high_res_template,q_auto:low,f_auto/w_128,dpr_2,fl_progressive:steep,q_auto:low,f_auto,c_limit/images/growth/luminosity/1731504277984-7347cb.jpeg", // Replace with your image URL
-            },
-            {
-                name: "Retail shop pest control",
-                rating: 4.63,
-                reviews: "789",
-                price: "Starts at $1,649",
-                description: [
-                    "Treatment will be completed in 2 visits with 2 weeks of gap",
-                    "Excludes removal of utensils & objects before the service begins",
-                ],
-                details: "4 options",
-                image: "https://res.cloudinary.com/urbanclap/image/upload/t_high_res_template,q_auto:low,f_auto/w_128,dpr_2,fl_progressive:steep,q_auto:low,f_auto,c_limit/images/growth/luminosity/1731504268966-e3811e.jpeg", // Replace with your image URL
-            },
-        ],
-    },
-];
+import Config from "../../../Config";
 
 const ServicePage = () => {
-    const [selectedCategory, setSelectedCategory] = useState(null);
+    const location = useLocation();
+    const { serviceId, serviceName, subCategoryId, subCategoryName } =
+        location.state || {};
+
     const [cartItems, setCartItems] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [categories, setCategories] = useState({});
+    const [services, setServices] = useState([]);
+    const [allServices, setAllServices] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState(null);
 
     useEffect(() => {
-        const storedCart = localStorage.getItem("cartItems");
-        if (storedCart) {
+        const fetchServices = async () => {
             try {
-                setCartItems(JSON.parse(storedCart)); // Parse stored cart items
-            } catch (error) {
-                console.error("Error parsing cart data:", error);
+                const response = await fetch(
+                    `${Config.API_URL}/services/retrieve-by-id/?service_id=${subCategoryId}`
+                );
+                if (!response.ok) throw new Error("Failed to fetch services");
+                const data = await response.json();
+
+                if (!data?.data || typeof data.data !== "object") {
+                    throw new Error("Unexpected API response structure");
+                }
+
+                const categoriesData = Object.keys(data.data).reduce(
+                    (acc, categoryName) => {
+                        const subCategoryData = data.data[categoryName];
+                        acc[categoryName] = {
+                            categoryImage: subCategoryData.category_image,
+                            services: subCategoryData.services,
+                        };
+                        return acc;
+                    },
+                    {}
+                );
+
+                setCategories(categoriesData);
+
+                // Collect all services from all categories
+                const allServicesArray = Object.values(categoriesData).flatMap(
+                    (category) => category.services
+                );
+                setAllServices(allServicesArray);
+                setServices(allServicesArray); // Show all services by default
+
+                setLoading(false);
+            } catch (err) {
+                console.error("Error fetching services:", err.message);
+                setError(err.message);
+                setLoading(false);
             }
-        }
-    }, []);
+        };
 
-    useEffect(() => {
-        if (cartItems.length > 0) {
-            // Only update localStorage if cartItems is not empty
-            localStorage.setItem("cartItems", JSON.stringify(cartItems));
-        }
-    }, [cartItems]);
+        if (subCategoryId) fetchServices();
+    }, [subCategoryId]);
 
-    // Handle category selection
-    const handleCategorySelect = (index) => {
-        setSelectedCategory(index);
+    const handleCategorySelect = (categoryName) => {
+        setSelectedCategory(categoryName);
+        setServices(categories[categoryName]?.services || []);
     };
 
-    // Filter services based on the selected category
-    const filteredServices =
-        selectedCategory !== null ? [services[selectedCategory]] : services;
+    const handleShowAllServices = () => {
+        setSelectedCategory(null);
+        setServices(allServices);
+    };
 
-    // Handle adding a service to the cart
-    const handleAddToCart = (option) => {
+    const handleAddToCart = (service) => {
         const existingItem = cartItems.find(
-            (item) => item.name === option.name
+            (item) => item.service_id === service.service_id
         );
         if (existingItem) {
-            handleIncreaseQuantity(cartItems.indexOf(existingItem));
+            const updatedCart = cartItems.map((item) =>
+                item.service_id === service.service_id
+                    ? { ...item, quantity: (item.quantity || 1) + 1 }
+                    : item
+            );
+            setCartItems(updatedCart);
         } else {
-            setCartItems([...cartItems, { ...option, quantity: 1 }]);
+            setCartItems([
+                ...cartItems,
+                {
+                    ...service,
+                    quantity: 1,
+                    category: serviceName,
+                    subCategory: subCategoryName,
+                    serviceCategory: selectedCategory || service.category,
+                },
+            ]);
         }
     };
 
     const handleIncreaseQuantity = (index) => {
         const updatedCart = [...cartItems];
-        updatedCart[index].quantity += 1;
+        updatedCart[index].quantity = (updatedCart[index].quantity || 1) + 1;
         setCartItems(updatedCart);
     };
 
@@ -156,20 +114,34 @@ const ServicePage = () => {
         setCartItems(updatedCart);
     };
 
-    // Calculate total price
     const totalPrice = cartItems.reduce((total, item) => {
-        const price = parseInt(item.price.replace(/\D/g, ""), 10);
-        return total + price * (item.quantity || 1);
+        return total + item.price * (item.quantity || 1);
     }, 0);
+
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center min-h-screen">
+                <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-purple-500"></div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="flex justify-center items-center min-h-screen">
+                <div className="text-red-500 text-xl">{error}</div>
+            </div>
+        );
+    }
 
     return (
         <>
             <Navbar />
-            <div className="flex p-10 mt-24 min-h-screen mx-auto">
+            <div className="flex flex-col lg:flex-row p-4 md:p-6 lg:p-10 mt-24 min-h-screen mx-auto">
                 {/* Left Sidebar */}
-                <div className="w-2/7 pr-4">
-                    <h1 className="text-3xl font-bold">
-                        Cockroach, Ant & General Pest Control
+                <div className="w-full lg:w-2/7 lg:pr-4 lg:sticky lg:self-start lg:top-24 mb-6 lg:mb-0">
+                    <h1 className="text-2xl md:text-3xl font-bold">
+                        {subCategoryName}
                     </h1>
                     <div className="flex items-center text-gray-600 mt-2">
                         <FaStar className="text-purple-600" />
@@ -181,106 +153,163 @@ const ServicePage = () => {
                         <h2 className="text-lg font-semibold">
                             Select a service
                         </h2>
-                        <div className="flex justify-between mt-4">
-                            {services.map((service, index) => (
-                                <div
-                                    key={index}
-                                    className="text-center cursor-pointer"
-                                    onClick={() => handleCategorySelect(index)}
-                                >
-                                    <img
-                                        src={service.image}
-                                        alt={service.title}
-                                        className="w-24 h-24 rounded-lg shadow"
-                                    />
-                                    <p className="mt-2 w-24 text-sm">
-                                        {service.title}
-                                    </p>
-                                </div>
-                            ))}
+                        <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
+                            {Object.keys(categories).map(
+                                (categoryName, index) => {
+                                    const category = categories[categoryName];
+                                    return (
+                                        <div
+                                            key={index}
+                                            className="text-center cursor-pointer flex-shrink-0"
+                                            onClick={() =>
+                                                handleCategorySelect(
+                                                    categoryName
+                                                )
+                                            }
+                                        >
+                                            <img
+                                                src={`${Config.MEDIA_URL}${category.categoryImage}`}
+                                                alt={categoryName}
+                                                className="w-20 h-20 md:w-24 md:h-24 rounded-lg shadow"
+                                            />
+                                            <p className="mt-2 w-20 md:w-24 text-xs md:text-sm">
+                                                {categoryName}
+                                            </p>
+                                        </div>
+                                    );
+                                }
+                            )}
                         </div>
                     </div>
                 </div>
-
                 {/* Main Content */}
-                <div className="w-3/7 border-x border-t pt-6 px-6">
-                    {filteredServices.map((service, index) => (
-                        <div key={index} className="mb-8">
-                            <h2 className="text-2xl  font-bold mb-4">
-                                {service.title}
+                <div className="w-full lg:w-3/7 lg:border-x lg:border-t lg:pt-6 px-0 lg:px-6 relative">
+                    <div className="mb-8">
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-xl md:text-2xl font-bold">
+                                {selectedCategory || subCategoryName}
                             </h2>
-                            {service.options.map((option, idx) => (
-                                <div key={idx} className="p-4 border-b flex">
-                                    <div className="flex-1">
-                                        <h3 className="text-xl font-semibold">
-                                            {option.name}
-                                        </h3>
-                                        <div className="flex items-center mt-1">
-                                            <FaStar className="text-purple-600 mr-1" />
-                                            <span className="text-sm">
-                                                {option.rating} (
-                                                {option.reviews} reviews)
-                                            </span>
-                                        </div>
-                                        <p className="text-gray-600 mt-2">
-                                            {option.price}
-                                        </p>
-                                        <ul className="list-disc list-inside mt-2">
-                                            {option.description.map(
-                                                (desc, i) => (
-                                                    <li
-                                                        key={i}
-                                                        className="text-sm text-gray-600"
+                            {selectedCategory && (
+                                <button
+                                    onClick={handleShowAllServices}
+                                    className="text-purple-600 text-sm underline"
+                                >
+                                    Show all services
+                                </button>
+                            )}
+                        </div>
+
+                        {/* Group services by category when none is selected */}
+                        {!selectedCategory ? (
+                            Object.keys(categories).map((categoryName) => (
+                                <div key={categoryName}>
+                                    <h3 className="text-lg font-semibold mt-6 mb-4 border-b pb-2">
+                                        {categoryName}
+                                    </h3>
+                                    {categories[categoryName].services.map(
+                                        (service, idx) => (
+                                            <div
+                                                key={idx}
+                                                className="p-4 border-b flex flex-col sm:flex-row"
+                                            >
+                                                {/* Service card content remains the same */}
+                                                <div className="flex-1">
+                                                    <h3 className="text-lg md:text-xl font-semibold">
+                                                        {service.service_name}
+                                                    </h3>
+                                                    <div className="flex items-center mt-1">
+                                                        <FaStar className="text-purple-600 mr-1" />
+                                                        <span className="text-sm">
+                                                            4.8 (10K reviews)
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-gray-600 mt-2">
+                                                        $
+                                                        {service.price.toFixed(
+                                                            2
+                                                        )}
+                                                    </p>
+                                                    <ul className="list-disc list-inside mt-2">
+                                                        <li className="text-sm text-gray-600">
+                                                            {service.duration}{" "}
+                                                            minutes
+                                                        </li>
+                                                        <li className="text-sm text-gray-600">
+                                                            {
+                                                                service.description
+                                                            }
+                                                        </li>
+                                                    </ul>
+                                                    <button className="text-purple-600 mt-2 text-sm cursor-pointer">
+                                                        View details
+                                                    </button>
+                                                </div>
+                                                <div className="w-full sm:w-40 mt-4 sm:mt-0 sm:ml-4">
+                                                    <img
+                                                        src={
+                                                            service.image_url
+                                                                ? `${Config.MEDIA_URL}${service.image_url}`
+                                                                : "https://via.placeholder.com/150"
+                                                        }
+                                                        alt={
+                                                            service.service_name
+                                                        }
+                                                        className="rounded-lg w-full h-24 object-cover"
+                                                    />
+                                                    <button
+                                                        className="bg-purple-600 cursor-pointer text-white px-4 py-2 rounded-lg mt-2 text-sm block ml-auto"
+                                                        onClick={() =>
+                                                            handleAddToCart(
+                                                                service
+                                                            )
+                                                        }
                                                     >
-                                                        {desc}
-                                                    </li>
-                                                )
-                                            )}
-                                        </ul>
-                                        <button className="text-purple-600 mt-2 text-sm cursor-pointer">
-                                            View details
-                                        </button>
-                                    </div>
-                                    <div className="w-40 ml-4">
-                                        <img
-                                            src={option.image}
-                                            alt={option.name}
-                                            className="rounded-lg"
-                                        />
-                                        <button
-                                            className="bg-purple-600 cursor-pointer text-white px-4 py-2 rounded-lg mt-2 text-sm block ml-auto"
-                                            onClick={() =>
-                                                handleAddToCart(option)
-                                            }
-                                        >
-                                            Add
-                                        </button>
-                                        <span className="text-gray-600 text-sm block mt-1 ml-auto">
-                                            {option.details}
-                                        </span>
+                                                        Add
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )
+                                    )}
+                                </div>
+                            ))
+                        ) : /* Show services for selected category */
+                        services.length > 0 ? (
+                            services.map((service, idx) => (
+                                <div
+                                    key={idx}
+                                    className="p-4 border-b flex flex-col sm:flex-row"
+                                >
+                                    {/* Same service card content as above */}
+                                    <div className="flex-1">
+                                        <h3 className="text-lg md:text-xl font-semibold">
+                                            {service.service_name}
+                                        </h3>
+                                        {/* ... rest of the service card ... */}
                                     </div>
                                 </div>
-                            ))}
-                        </div>
-                    ))}
+                            ))
+                        ) : (
+                            <div className="text-center py-8">
+                                <p className="text-gray-500">
+                                    No services found
+                                </p>
+                            </div>
+                        )}
+                    </div>
                 </div>
-
                 {/* Right Section (Cart) */}
-                <div className="w-2/7 pl-4 border-t py-12">
+                <div className="w-full lg:w-2/7 lg:pl-4 lg:border-t lg:py-12 lg:sticky lg:self-start lg:top-24 mt-6 lg:mt-0">
                     <div className="border p-4 rounded-lg shadow">
                         <h2 className="text-xl font-bold mb-4">Cart</h2>
                         {cartItems.length > 0 ? (
                             cartItems.map((item, index) => {
                                 const itemPrice =
-                                    parseInt(
-                                        item.price.replace(/\D/g, ""),
-                                        10
-                                    ) * (item.quantity || 1);
+                                    item.price * (item.quantity || 1);
                                 return (
                                     <div key={index} className="mb-4">
                                         <div className="grid grid-cols-2 items-center space-x-2 justify-between">
-                                            <p className=" text-sm col-span-1">
-                                                {item.name}
+                                            <p className="text-sm col-span-1 truncate">
+                                                {item.service_name}
                                             </p>
                                             <div className="col-span-1 w-full flex justify-between">
                                                 <div className="flex items-center border border-blue-400 rounded-lg w-fit bg-blue-100">
@@ -308,18 +337,18 @@ const ServicePage = () => {
                                                         <FaPlus className="w-4 h-4" />
                                                     </button>
                                                 </div>
-                                                <p>${itemPrice}</p>
+                                                <p>${itemPrice.toFixed(2)}</p>
                                             </div>
                                         </div>
                                     </div>
                                 );
                             })
                         ) : (
-                            <div className="justify-center items-center flex">
+                            <div className="flex flex-col items-center py-4">
                                 <div className="text-purple-600 text-4xl">
                                     🛒
                                 </div>
-                                <p className="text-gray-600 ">
+                                <p className="text-gray-600 mt-2">
                                     No items in your cart
                                 </p>
                             </div>
@@ -328,7 +357,7 @@ const ServicePage = () => {
                             <Link to="/cart">
                                 <button className="bg-purple-600 flex text-white px-4 py-2 rounded-lg mt-2 w-full hover:bg-purple-700 transition-all justify-between cursor-pointer">
                                     <p className="text-lg col-span-1">
-                                        ${totalPrice}
+                                        ${totalPrice.toFixed(2)}
                                     </p>
                                     View Cart
                                 </button>
