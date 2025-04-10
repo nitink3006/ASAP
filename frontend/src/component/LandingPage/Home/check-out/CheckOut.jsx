@@ -17,8 +17,8 @@ const CheckOut = () => {
     }, []);
 
     const totalPrice = cartItems.reduce((total, item) => {
-        const price = parseInt(item.price.replace(/\D/g, ""), 10);
-        return total + price * (item.quantity || 1);
+        // const price = parseInt(item.price.replace(/\D/g, ""), 10);
+        // return total + price * (item.quantity || 1);
     }, 0);
 
     return (
@@ -60,7 +60,7 @@ const CheckOut = () => {
                                                 {item.description} ×{" "}
                                                 {item.quantity}
                                             </span>
-                                            <span className="font-semibold">
+                                            {/* <span className="font-semibold">
                                                 $
                                                 {parseInt(
                                                     item.price.replace(
@@ -69,7 +69,7 @@ const CheckOut = () => {
                                                     ),
                                                     10
                                                 ) * item.quantity}
-                                            </span>
+                                            </span> */}
                                         </div>
                                     </div>
                                 </div>
