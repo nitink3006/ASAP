@@ -1,0 +1,125 @@
+{
+    "faqs": [
+      {
+        "category": "Service-Related Questions",
+        "question": "What services do you offer?",
+        "answer": "We offer a range of home services, including salon services, AC & appliance repair, plumbing, electrical work, pest control, painting, body massage, home cleaning, and more."
+      },
+      {
+        "category": "Service-Related Questions",
+        "question": "How do I book a service?",
+        "answer": "You can book a service through our website by selecting the desired service, choosing a time slot, and confirming your booking."
+      },
+      {
+        "category": "Service-Related Questions",
+        "question": "What are the charges for each service?",
+        "answer": "The pricing depends on the type of service, location, and complexity of the task. You can check the pricing details on our website before booking."
+      },
+      {
+        "category": "Service-Related Questions",
+        "question": "Do you offer emergency services?",
+        "answer": "Yes, we provide emergency services for specific categories like plumbing, electrical repairs, and AC repairs. Additional charges may apply."
+      },
+      {
+        "category": "Service-Related Questions",
+        "question": "Can I schedule a service for a specific date and time?",
+        "answer": "Yes, you can select your preferred date and time while booking the service."
+      },
+      {
+        "category": "Service-Related Questions",
+        "question": "Do I need to provide any tools or materials?",
+        "answer": "Our professionals carry the necessary tools. However, for certain services, you may need to provide specific materials. This will be mentioned at the time of booking."
+      },
+      {
+        "category": "Booking & Availability",
+        "question": "How can I check the availability of a service provider?",
+        "answer": "You can check availability by selecting your location and preferred service on our website."
+      },
+      {
+        "category": "Booking & Availability",
+        "question": "Can I cancel or reschedule a booking?",
+        "answer": "Yes, you can cancel or reschedule your booking through your account before the scheduled time. Please check our cancellation policy for details."
+      },
+      {
+        "category": "Booking & Availability",
+        "question": "How much advance notice is required for cancellation?",
+        "answer": "Cancellations should be made at least 24 hours in advance to avoid cancellation fees."
+      },
+      {
+        "category": "Booking & Availability",
+        "question": "Will I get a refund if I cancel my booking?",
+        "answer": "Refund policies depend on the service type and cancellation timing. Please refer to our refund policy for details."
+      },
+      {
+        "category": "Booking & Availability",
+        "question": "Can I book multiple services at once?",
+        "answer": "Yes, you can add multiple services to your booking and schedule them accordingly."
+      },
+      {
+        "category": "Pricing & Payment",
+        "question": "How is the pricing calculated?",
+        "answer": "Pricing is based on service type, duration, and complexity. Additional charges may apply for urgent bookings."
+      },
+      {
+        "category": "Pricing & Payment",
+        "question": "Do you have any discounts or offers?",
+        "answer": "Yes, we frequently offer discounts and promotions. Check our website or subscribe to our newsletter for updates."
+      },
+      {
+        "category": "Pricing & Payment",
+        "question": "What payment methods do you accept?",
+        "answer": "We accept online payments via credit/debit cards, UPI, and digital wallets. Some services may offer cash-on-delivery payment options."
+      },
+      {
+        "category": "Pricing & Payment",
+        "question": "Is there an option for cash-on-delivery payment?",
+        "answer": "Yes, certain services offer cash-on-delivery. The availability will be shown at checkout."
+      },
+      {
+        "category": "Pricing & Payment",
+        "question": "Will I receive an invoice or receipt?",
+        "answer": "Yes, you will receive an invoice via email after booking confirmation."
+      },
+      {
+        "category": "Customer Support & Queries",
+        "question": "How can I contact customer support?",
+        "answer": "You can contact us via phone, email, or live chat on our website."
+      },
+      {
+        "category": "Customer Support & Queries",
+        "question": "What should I do if the service provider doesn’t show up?",
+        "answer": "In case of no-show, please contact our support team, and we will assist you with a reschedule or refund."
+      },
+      {
+        "category": "Customer Support & Queries",
+        "question": "How do I file a complaint or give feedback?",
+        "answer": "You can share your feedback or file a complaint through the 'Customer Feedback' section on our website."
+      },
+      {
+        "category": "Customer Support & Queries",
+        "question": "Is there a guarantee on the services provided?",
+        "answer": "Yes, we offer a satisfaction guarantee. If you're not happy with the service, we will try to resolve your concern."
+      },
+      {
+        "category": "Safety & Trust",
+        "question": "Are your service providers verified and background-checked?",
+        "answer": "Yes, all service providers undergo a background check and verification process."
+      },
+      {
+        "category": "Safety & Trust",
+        "question": "What happens if an item is damaged during service?",
+        "answer": "In case of damage, please report it immediately to our support team. Compensation policies apply."
+      },
+      {
+        "category": "Safety & Trust",
+        "question": "Do you provide a warranty for repairs and installations?",
+        "answer": "Yes, we offer a warranty for certain services. Warranty details are mentioned at the time of booking."
+      },
+      {
+        "category": "Safety & Trust",
+        "question": "How do I ensure my personal safety when hiring a service provider?",
+        "answer": "We recommend checking the provider’s ID and verifying details before allowing them into your home. Our team ensures the highest safety standards."
+      }
+    ]
+  }
+  

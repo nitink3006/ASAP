@@ -9,8 +9,8 @@ const Cart = () => {
     const [totalPrice, setTotalPrice] = useState(0);
     const [loading, setLoading] = useState(true);
 
-    const token = "ce6a7088c8c23222078edf50006d536540b842cf";
-
+    const user = JSON.parse(localStorage.getItem("user"));
+    const token = user?.token || null;
     useEffect(() => {
         const fetchCartItems = async () => {
             try {

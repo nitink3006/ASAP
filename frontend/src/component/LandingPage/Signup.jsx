@@ -11,7 +11,6 @@ import Navbar from "./Home/Navbar";
 
 const Signup = () => {
   const navigate = useNavigate();
-  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -20,7 +19,7 @@ const Signup = () => {
     landmark: "",
     city: "",
     pincode: "",
-    password: "",
+    email: "",
   });
 
   const handleChange = (e) => {
@@ -212,25 +211,17 @@ const Signup = () => {
               </div>
 
               <div className="relative">
-                <label className="block text-gray-700 font-medium mb-2">Password</label>
+                <label className="block text-gray-700 font-medium mb-2">Email</label>
                 <div className="flex items-center border rounded-lg p-2 bg-gray-100 relative">
-                  <FaLock className="text-gray-500 mr-2" />
                   <input
-                    type={showPassword ? "text" : "password"}
-                    name="password"
-                    value={formData.password}
+                    type="email"
+                    name="email"
+                    value={formData.email}
                     onChange={handleChange}
-                    placeholder="Create a password"
+                    placeholder="Create a email"
                     className="w-full outline-none bg-transparent"
                     required
                   />
-                  <button
-                    type="button"
-                    className="absolute right-3 text-gray-500"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? <AiFillEyeInvisible /> : <AiFillEye />}
-                  </button>
                 </div>
               </div>
             </div>
