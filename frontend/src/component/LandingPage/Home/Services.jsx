@@ -10,6 +10,9 @@ const Services = () => {
     const [subCategories, setSubCategories] = useState([]);
     const navigate = useNavigate();
 
+    const user = JSON.parse(localStorage.getItem("user"));
+    console.log("user", user);
+
     useEffect(() => {
         // Fetch services from API
         const fetchServices = async () => {
@@ -133,7 +136,13 @@ const Services = () => {
                                         key={i}
                                         className="text-center cursor-pointer"
                                         onClick={() =>
-                                            handleSubCategoryClick(item)
+                                        {
+                                            if(user)
+                                            { handleSubCategoryClick(item)
+                                            } else {
+                                                navigate("/login")
+                                            }
+                                        }
                                         }
                                     >
                                         <div className="bg-gray-200 p-2 rounded-lg">

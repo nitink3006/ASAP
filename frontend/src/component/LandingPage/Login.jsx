@@ -44,7 +44,7 @@ const Login = () => {
       const response = await fetch(`${Config.API_URL}/login/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: emailOrPhone, password }),
+        body: JSON.stringify({ username: emailOrPhone, password: "none" }),
       });
       const data = await response.json();
       if (response.ok) {
@@ -72,17 +72,27 @@ const Login = () => {
   };
 
   const handleSendOtp = async () => {
-    if (!/^\d{10}$/.test(emailOrPhone)) {
-      toast.error("Enter a valid 10-digit phone number.");
+    if (!/^[2-9]{1}[0-9]{9}$/.test(emailOrPhone)) {
+      toast.error("Enter a valid 10-digit US phone number.");
       return;
     }
-
+  
     try {
       setLoading(true);
-      setupRecaptcha(); // Ensure ReCAPTCHA is set up
+  
+      const res = await fetch(`${Config.API_URL}/check-user/?mobile_no=${emailOrPhone}`);
+      const userData = await res.json();
+  
+      if (!res.ok || userData.status === "False") {
+        toast.error("User does not exist.");
+        setLoading(false);
+        return;
+      }
+  
+      setupRecaptcha();
       const appVerifier = window.recaptchaVerifier;
-
-      const confirmation = await signInWithPhoneNumber(auth, `+91${emailOrPhone}`, appVerifier);
+  
+      const confirmation = await signInWithPhoneNumber(auth, `+1${emailOrPhone}`, appVerifier);
       setConfirmationResult(confirmation);
       toast.info("OTP sent to your phone.");
     } catch (err) {
@@ -92,6 +102,7 @@ const Login = () => {
       setLoading(false);
     }
   };
+  
 
   const handleVerifyOtp = async () => {
     if (!otp) {
@@ -103,8 +114,8 @@ const Login = () => {
       setLoading(true);
       await confirmationResult.confirm(otp);
       toast.success("Phone verified successfully!");
-      localStorage.setItem("user", JSON.stringify({ user_type: "user", phone: emailOrPhone }));
-      navigate("/");
+      await handleLogin({ preventDefault: () => {} });
+      // navigate("/");
     } catch (err) {
       toast.error("Invalid OTP.");
     } finally {
@@ -119,7 +130,7 @@ const Login = () => {
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="bg-white p-8 rounded-lg shadow-2xl w-full max-w-md">
           <h2 className="text-3xl font-semibold text-center text-gray-800">Welcome Back</h2>
-          <p className="text-gray-500 text-center mt-2">Sign in to continue</p>
+          <p className="text-gray-500 text-center mt-2">LogIn to continue</p>
 
           {error && <p className="text-red-500 text-center mt-2">{error}</p>}
 
@@ -167,7 +178,7 @@ const Login = () => {
               <button
                 type="button"
                 onClick={handleSendOtp}
-                className="w-full bg-gray-700 text-white py-2 rounded-lg font-semibold hover:bg-gray-800 transition duration-200"
+                className="w-full bg-gray-700 cursor-pointer text-white py-2 rounded-lg font-semibold hover:bg-gray-800 transition duration-200"
                 disabled={loading}
               >
                 {loading ? "Sending OTP..." : "Send OTP"}
@@ -187,7 +198,7 @@ const Login = () => {
                 <button
                   type="button"
                   onClick={handleVerifyOtp}
-                  className="w-full bg-gray-700 text-white py-2 mt-4 rounded-lg font-semibold hover:bg-gray-800 transition duration-200"
+                  className="w-full bg-gray-700 text-white cursor-pointer py-2 mt-4 rounded-lg font-semibold hover:bg-gray-800 transition duration-200"
                   disabled={loading}
                 >
                   {loading ? "Verifying..." : "Verify OTP"}
@@ -198,7 +209,7 @@ const Login = () => {
             {userType === "admin" && (
               <button
                 type="submit"
-                className="w-full bg-gray-700 text-white py-2 rounded-lg font-semibold hover:bg-gray-800 transition duration-200"
+                className="w-full bg-gray-700 text-white py-2 rounded-lg cursor-pointer font-semibold hover:bg-gray-800 transition duration-200"
                 disabled={loading}
               >
                 {loading ? "Logging in..." : "Login"}

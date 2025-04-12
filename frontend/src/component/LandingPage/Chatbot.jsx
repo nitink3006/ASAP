@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { FiMessageCircle, FiSend, FiX } from "react-icons/fi";
 import axios from "axios";
+import faqData from "./Faq.json";
+
 
 const API_KEY = "AIzaSyA90GXl_wdqRdaJM0qUqyVtNIDNSVmvHxY";
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
@@ -31,22 +33,56 @@ const Chatbot = () => {
     setInput("");
     setLoading(true);
   
-    try {
-      const response = await axios.post(API_URL, {
-        contents: [{ parts: [{ text: input }] }]
+    // Convert user input to lowercase for case-insensitive comparison
+    const userQuery = input.toLowerCase().replace(/[^\w\s]/g, ""); // Remove special characters
+  
+    // Extract keywords (removes common words like "what", "is", "the", etc.)
+    const extractKeywords = (text) => {
+      return text
+        .toLowerCase()
+        .replace(/[^\w\s]/g, "") // Remove punctuation
+        .split(" ") // Split into words
+        .filter((word) => word.length > 2); // Keep words longer than 2 letters
+    };
+  
+    const userKeywords = extractKeywords(userQuery);
+  
+    if (faqData.faqs && Array.isArray(faqData.faqs)) {
+      let bestMatch = null;
+      let highestMatchCount = 0;
+  
+      faqData.faqs.forEach((faq) => {
+        const faqKeywords = extractKeywords(faq.question);
+        const matchCount = faqKeywords.filter((word) =>
+          userKeywords.includes(word)
+        ).length;
+  
+        if (matchCount > highestMatchCount) {
+          highestMatchCount = matchCount;
+          bestMatch = faq;
+        }
       });
   
-      // Extract response text
-      const botResponse = response.data.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I couldn't process that.";
-      
-      setMessages([...newMessages, { text: botResponse, sender: "bot" }]);
-    } catch (error) {
-      console.error("API Error:", error.response?.data || error.message);
-      setMessages([...newMessages, { text: "Error connecting to the AI service.", sender: "bot" }]);
+      // If we find a good match, respond with it
+      if (bestMatch && highestMatchCount > 0) {
+        setMessages([
+          ...newMessages,
+          { text: bestMatch.answer, sender: "bot" },
+        ]);
+        setLoading(false);
+        return;
+      }
     }
   
+    // If no good match is found, send a polite fallback message
+    const fallbackMessage =
+      "Sorry, I couldn't answer this. Please contact our support team at +1234567890 or email us at support@example.com.";
+  
+    setMessages([...newMessages, { text: fallbackMessage, sender: "bot" }]);
     setLoading(false);
   };
+  
+  
   
   return (
     <div className="fixed bottom-4 right-4 z-50">

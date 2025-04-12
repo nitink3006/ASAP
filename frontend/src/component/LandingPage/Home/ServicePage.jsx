@@ -8,7 +8,6 @@ import Config from "../../../Config";
 const ServicePage = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const token = "ce6a7088c8c23222078edf50006d536540b842cf";
     const { serviceId, serviceName, subCategoryId, subCategoryName } =
         location.state || {};
 
@@ -19,6 +18,9 @@ const ServicePage = () => {
     const [services, setServices] = useState([]);
     const [allServices, setAllServices] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState(null);
+    const user = JSON.parse(localStorage.getItem("user"));
+    const token = user?.token || null;
+
 
     useEffect(() => {
         const fetchServices = async () => {
@@ -298,7 +300,7 @@ const ServicePage = () => {
                                     </div>
                                     <button
                                         onClick={handleViewCart}
-                                        className="bg-purple-600 text-white px-4 py-2 rounded-lg mt-4 w-full hover:bg-purple-700 transition-all"
+                                        className="bg-purple-600 text-white px-4 py-2 cursor-pointer rounded-lg mt-4 w-full hover:bg-purple-700 transition-all"
                                     >
                                         Add to Cart
                                     </button>
@@ -355,7 +357,7 @@ const ServiceCard = ({ service, onAddToCart }) => (
                 className="rounded-lg w-full h-24 object-cover"
             />
             <button
-                className="bg-purple-600 text-white px-4 py-2 rounded-lg mt-2 text-sm block ml-auto"
+                className="bg-purple-600 text-white px-4 cursor-pointer py-2 rounded-lg mt-2 text-sm block ml-auto"
                 onClick={() => onAddToCart(service)}
             >
                 Add
