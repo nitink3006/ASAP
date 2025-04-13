@@ -91,10 +91,7 @@ const Login = () => {
 
     try {
       setLoading(true);
-
-      const res = await fetch(
-        `${Config.API_URL}/check-user/?mobile_no=${emailOrPhone}`
-      );
+      const res = await fetch(`${Config.API_URL}/check-user/?mobile_no=${emailOrPhone}`);
       const userData = await res.json();
 
       if (!res.ok || userData.status === "False") {
@@ -107,8 +104,7 @@ const Login = () => {
       const appVerifier = window.recaptchaVerifier;
 
       const confirmation = await signInWithPhoneNumber(
-        auth,
-        `+1${emailOrPhone}`,
+        auth,`+1${emailOrPhone}`,
         appVerifier
       );
       setConfirmationResult(confirmation);
@@ -143,8 +139,13 @@ const Login = () => {
     <>
       <Navbar />
       <ToastContainer />
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="bg-white p-8 rounded-lg shadow-2xl w-full max-w-md">
+      
+      <div className="min-h-screen flex items-center justify-center bg-white relative">
+      <div
+          className="absolute inset-0 bg-white"
+          style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/white-wall.png')" }}
+        ></div>
+        <div className="bg-white p-8 rounded-lg z-50 shadow-2xl w-full max-w-md">
           <h2 className="text-3xl font-semibold text-center text-gray-800">
             Welcome Back
           </h2>

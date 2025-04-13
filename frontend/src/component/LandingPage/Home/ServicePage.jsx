@@ -131,7 +131,7 @@ const ServicePage = () => {
                 })),
             };
 
-            const response = await fetch(`${Config.API_URL}/orders/`, {
+            const response = await fetch(`${Config.API_URL}/orders/?type=cart-quantity`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
