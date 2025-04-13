@@ -188,7 +188,7 @@ const Navbar = () => {
                     </div>
 
                     {/* Search Input */}
-                    <div className="flex-1 min-w-[100px] max-w-[250px] sm:max-w-[180px] md:max-w-[250px]">
+                    {/* <div className="flex-1 min-w-[100px] max-w-[250px] sm:max-w-[180px] md:max-w-[250px]">
                         <div className="flex items-center bg-gray-100 px-3 py-2 rounded-md shadow-sm border border-gray-300">
                             <FaSearch className="text-black mr-2 text-lg" />
                             <input
@@ -199,7 +199,7 @@ const Navbar = () => {
                                 className="w-full bg-transparent outline-none text-gray-500 placeholder-gray-500"
                             />
                         </div>
-                    </div>
+                    </div> */}
 
                 </div>
 
@@ -300,13 +300,13 @@ const Navbar = () => {
                         onChange={(e) => setLocation(e.target.value)}
                         className="px-4 py-2 w-64 rounded-md bg-gray-100 border border-gray-300 text-black placeholder-gray-500"
                     />
-                    <input
+                    {/* <input
                         type="text"
                         placeholder="Search services..."
                         value={service}
                         onChange={(e) => setService(e.target.value)}
                         className="px-4 py-2 w-64 rounded-md bg-gray-100 border border-gray-300 text-black placeholder-gray-500"
-                    />
+                    /> */}
                     <Link
                         to="/"
                         className="text-lg text-gray-700 hover:text-blue-600 transition"
