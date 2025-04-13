@@ -28,6 +28,7 @@ const Navbar = () => {
         }
     }, []);
 
+
     useEffect(() => {
         const savedLocation = localStorage.getItem("selectedLocation");
         if (savedLocation) {
@@ -195,6 +196,7 @@ const Navbar = () => {
                             />
                         </div>
                     </div>
+
                 </div>
 
                 {/* Desktop Nav */}
@@ -282,6 +284,7 @@ const Navbar = () => {
                     )}
                 </button>
             </div>
+
 
             {/* Mobile Menu Content */}
             {menuOpen && (

@@ -91,7 +91,6 @@ const Login = () => {
 
     try {
       setLoading(true);
-
       const res = await fetch(`${Config.API_URL}/check-user/?mobile_no=${emailOrPhone}`);
       const userData = await res.json();
 
