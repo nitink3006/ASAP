@@ -287,11 +287,11 @@ const Cart = () => {
                             <p className="text-gray-500 text-lg">
                                 Your cart is empty
                             </p>
-                            <Link to="/service-page">
-                                <button className="mt-4 cursor-pointer py-2 px-6 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition">
-                                    Browse Services
+                            {/* <Link to="/#services">
+                                <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
+                                    Browse More Services
                                 </button>
-                            </Link>
+                            </Link> */}
                         </div>
                     )}
 
