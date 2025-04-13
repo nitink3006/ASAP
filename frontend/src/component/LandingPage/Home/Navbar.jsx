@@ -19,7 +19,6 @@ const Navbar = () => {
 
 
   useEffect(() => {
-    // Fetch user details from local storage
     const storedUser = JSON.parse(localStorage.getItem("user"));
     if (storedUser) {
       setUser(storedUser);
@@ -104,49 +103,44 @@ const Navbar = () => {
   return (
     <nav className="bg-white text-black shadow-md p-4 fixed top-0 w-full z-50 border-b border-gray-200">
       <div className="container mx-auto flex items-center justify-between md:px-0 lg:px-16">
-        {/* Logo */}
         <Link to="/">
           <h1 className="text-2xl font-bold tracking-wide">ASAP</h1>
         </Link>
 
         <div className="hidden md:flex flex-wrap items-center space-x-6 w-fit md:max-w-96 lg:max-w-3xl">
-          {/* Location Search */}
           <div className="relative flex-1 min-w-[100px] max-w-[250px] sm:max-w-[180px] md:max-w-[250px]">
-          <div className="flex items-center bg-gray-100 px-3 py-2 rounded-md shadow-sm border border-gray-300">
-          <MdLocationOn className="text-black mr-2 text-lg" />
-        <input
-          ref={locationInputRef}
-          type="text"
-          placeholder="Enter location..."
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          className="w-full bg-transparent outline-none text-gray-500 placeholder-gray-500"
-        />
-        <button onClick={fetchCurrentLocation} className="ml-2 text-gray-700">
-          <FaCrosshairs className="text-lg hover:text-black transition duration-200 cursor-pointer" />
-        </button>
-      </div>
-
-      {/* Suggestions Dropdown */}
-      {locationSuggestions.length > 0 && (
-        <ul
-          ref={dropdownRef}
-          className="absolute left-0 mt-1 w-full bg-white border border-gray-300 shadow-md rounded-md max-h-48 overflow-y-auto z-10"
-        >
-          {locationSuggestions.map((suggestion, index) => (
-            <li
-              key={index}
-              className="px-3 py-2 cursor-pointer hover:bg-gray-200"
-              onClick={() => handleSelectLocation(suggestion)}
-            >
-              {suggestion}
-            </li>
-          ))}
-        </ul>
-      )}
+            <div className="flex items-center bg-gray-100 px-3 py-2 rounded-md shadow-sm border border-gray-300">
+              <MdLocationOn className="text-black mr-2 text-lg" />
+              <input
+                ref={locationInputRef}
+                type="text"
+                placeholder="Enter location..."
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                className="w-full bg-transparent outline-none text-gray-500 placeholder-gray-500"
+              />
+              <button onClick={fetchCurrentLocation} className="ml-2 text-gray-700">
+                <FaCrosshairs className="text-lg hover:text-black transition duration-200 cursor-pointer" />
+              </button>
+            </div>
+            {locationSuggestions.length > 0 && (
+              <ul
+                ref={dropdownRef}
+                className="absolute left-0 mt-1 w-full bg-white border border-gray-300 shadow-md rounded-md max-h-48 overflow-y-auto z-10"
+              >
+                {locationSuggestions.map((suggestion, index) => (
+                  <li
+                    key={index}
+                    className="px-3 py-2 cursor-pointer hover:bg-gray-200"
+                    onClick={() => handleSelectLocation(suggestion)}
+                  >
+                    {suggestion}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
-          {/* Services Search */}
           <div className="flex-1 min-w-[100px] max-w-[250px] sm:max-w-[180px] md:max-w-[250px]">
             <div className="flex items-center bg-gray-100 px-3 py-2 rounded-md shadow-sm border border-gray-300">
               <FaSearch className="text-black mr-2 text-lg" />
@@ -168,8 +162,8 @@ const Navbar = () => {
           <Link
             to="/"
             className={`relative transition duration-300 ${currentRoute === "/"
-                ? "text-black font-semibold border-b-2 border-black-600"
-                : "text-gray-500 hover:text-black"
+              ? "text-black font-semibold border-b-2 border-black-600"
+              : "text-gray-500 hover:text-black"
               }`}
           >
             Home
@@ -187,8 +181,8 @@ const Navbar = () => {
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 className="relative flex items-center cursor-pointer justify-center w-10 h-10 bg-gray-300 rounded-full text-lg font-semibold text-black"
               >
-                {user.customer.name.charAt(0).toUpperCase()}
-              </button>
+                {user?.user?.[0]?.name?.charAt(0)?.toUpperCase() || ""}             
+                 </button>
 
               {dropdownOpen && (
                 <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-300 rounded-md shadow-lg py-2 text-black">
@@ -217,8 +211,8 @@ const Navbar = () => {
             <Link
               to="/login"
               className={`relative transition duration-300 ${currentRoute === "/login"
-                  ? "text-black font-semibold border-b-2 border-black"
-                  : "text-gray-500 hover:text-black"
+                ? "text-black font-semibold border-b-2 border-black"
+                : "text-gray-500 hover:text-black"
                 }`}
             >
               Login

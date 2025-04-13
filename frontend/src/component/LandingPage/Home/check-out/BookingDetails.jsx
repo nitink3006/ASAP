@@ -9,7 +9,8 @@ const BookingDetails = ({ totalAmount, selectedServices }) => {
     const navigate = useNavigate();
     const user = JSON.parse(localStorage.getItem("user"));
     const token = user?.token || null;
-    const userDetails = user?.customer || {};
+    const userDetails = user?.user[0] || {};
+    console.log("userDetails", userDetails);
     const total_amount = totalAmount || 0;
     const [formData, setFormData] = useState({
         name: userDetails.name || "",
@@ -259,8 +260,8 @@ console.log("selectedServices",selectedServices)
                 </div>
             )}
             {showSuccessModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white p-6 rounded-lg shadow-md text-center max-w-sm w-full">
+                <div className="fixed inset-0  bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-gray-200 p-6 rounded-lg shadow-md text-center max-w-sm w-full">
                         <h2 className="text-xl font-bold mb-2">payment method
                             Successful!</h2>
                         <p className="text-gray-600 mb-4">Your booking has been confirmed.</p>
