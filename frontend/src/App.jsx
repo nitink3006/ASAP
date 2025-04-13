@@ -17,6 +17,7 @@ import Cart from "./component/LandingPage/Home/Cart";
 import Service from "./component/AdminDashboard/Service";
 import OrderPage from "./component/LandingPage/Home/OrderPage";
 import CheckOut from "./component/LandingPage/Home/check-out/CheckOut";
+import ScrollToTop from "./component/LandingPage/ScrollToTop";
 
 function App() {
     const [loading, setLoading] = useState(true);
@@ -25,8 +26,9 @@ function App() {
         <PreLoader onComplete={() => setLoading(false)} />
     ) : (
         <Router>
+            <ScrollToTop />
+
             <Routes>
-                {/* Routes with Navbar */}
                 <Route path="/" element={<Home />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/service-page" element={<ServicePage />} />
