@@ -17,7 +17,6 @@ const Navbar = () => {
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
 
-
   useEffect(() => {
     // Fetch user details from local storage
     const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -94,7 +93,6 @@ const Navbar = () => {
     };
   }, []);
 
-
   const handleLogout = () => {
     localStorage.clear(); // Clear everything from local storage
     setUser(null);
@@ -112,38 +110,41 @@ const Navbar = () => {
         <div className="hidden md:flex flex-wrap items-center space-x-6 w-fit md:max-w-96 lg:max-w-3xl">
           {/* Location Search */}
           <div className="relative flex-1 min-w-[100px] max-w-[250px] sm:max-w-[180px] md:max-w-[250px]">
-          <div className="flex items-center bg-gray-100 px-3 py-2 rounded-md shadow-sm border border-gray-300">
-          <MdLocationOn className="text-black mr-2 text-lg" />
-        <input
-          ref={locationInputRef}
-          type="text"
-          placeholder="Enter location..."
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          className="w-full bg-transparent outline-none text-gray-500 placeholder-gray-500"
-        />
-        <button onClick={fetchCurrentLocation} className="ml-2 text-gray-700">
-          <FaCrosshairs className="text-lg hover:text-black transition duration-200 cursor-pointer" />
-        </button>
-      </div>
+            <div className="flex items-center bg-gray-100 px-3 py-2 rounded-md shadow-sm border border-gray-300">
+              <MdLocationOn className="text-black mr-2 text-lg" />
+              <input
+                ref={locationInputRef}
+                type="text"
+                placeholder="Enter location..."
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                className="w-full bg-transparent outline-none text-gray-500 placeholder-gray-500"
+              />
+              <button
+                onClick={fetchCurrentLocation}
+                className="ml-2 text-gray-700"
+              >
+                <FaCrosshairs className="text-lg hover:text-black transition duration-200 cursor-pointer" />
+              </button>
+            </div>
 
-      {/* Suggestions Dropdown */}
-      {locationSuggestions.length > 0 && (
-        <ul
-          ref={dropdownRef}
-          className="absolute left-0 mt-1 w-full bg-white border border-gray-300 shadow-md rounded-md max-h-48 overflow-y-auto z-10"
-        >
-          {locationSuggestions.map((suggestion, index) => (
-            <li
-              key={index}
-              className="px-3 py-2 cursor-pointer hover:bg-gray-200"
-              onClick={() => handleSelectLocation(suggestion)}
-            >
-              {suggestion}
-            </li>
-          ))}
-        </ul>
-      )}
+            {/* Suggestions Dropdown */}
+            {locationSuggestions.length > 0 && (
+              <ul
+                ref={dropdownRef}
+                className="absolute left-0 mt-1 w-full bg-white border border-gray-300 shadow-md rounded-md max-h-48 overflow-y-auto z-10"
+              >
+                {locationSuggestions.map((suggestion, index) => (
+                  <li
+                    key={index}
+                    className="px-3 py-2 cursor-pointer hover:bg-gray-200"
+                    onClick={() => handleSelectLocation(suggestion)}
+                  >
+                    {suggestion}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
           {/* Services Search */}
@@ -161,23 +162,23 @@ const Navbar = () => {
           </div>
         </div>
 
-
-
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center space-x-8 text-lg font-medium">
           <Link
             to="/"
-            className={`relative transition duration-300 ${currentRoute === "/"
+            className={`relative transition duration-300 ${
+              currentRoute === "/"
                 ? "text-black font-semibold border-b-2 border-black-600"
                 : "text-gray-500 hover:text-black"
-              }`}
+            }`}
           >
             Home
           </Link>
           <Link to="/cart">
             <FaShoppingCart
-              className={`text-2xl cursor-pointer transition ${currentRoute === "/cart" ? "text-black" : "text-gray-500"
-                }`}
+              className={`text-2xl cursor-pointer transition ${
+                currentRoute === "/cart" ? "text-black" : "text-gray-500"
+              }`}
             />
           </Link>
 
@@ -187,7 +188,7 @@ const Navbar = () => {
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 className="relative flex items-center cursor-pointer justify-center w-10 h-10 bg-gray-300 rounded-full text-lg font-semibold text-black"
               >
-                {user.customer.name.charAt(0).toUpperCase()}
+                {user?.user?.[0]?.name?.charAt(0)?.toUpperCase() || ""}{" "}
               </button>
 
               {dropdownOpen && (
@@ -216,10 +217,11 @@ const Navbar = () => {
           ) : (
             <Link
               to="/login"
-              className={`relative transition duration-300 ${currentRoute === "/login"
+              className={`relative transition duration-300 ${
+                currentRoute === "/login"
                   ? "text-black font-semibold border-b-2 border-black"
                   : "text-gray-500 hover:text-black"
-                }`}
+              }`}
             >
               Login
             </Link>
@@ -231,9 +233,12 @@ const Navbar = () => {
           className="md:hidden text-2xl text-gray-700 flex items-center"
           onClick={() => setMenuOpen(!menuOpen)}
         >
-          {menuOpen ? <IoMdClose className="text-3xl text-black" /> : <IoMdMenu className="text-3xl text-black" />}
+          {menuOpen ? (
+            <IoMdClose className="text-3xl text-black" />
+          ) : (
+            <IoMdMenu className="text-3xl text-black" />
+          )}
         </button>
-
       </div>
 
       {/* Mobile Menu */}

@@ -8,7 +8,7 @@ import Config from "../../Config";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { auth, RecaptchaVerifier, signInWithPhoneNumber } from "../../firebase";
-import firebaseApp from "../../firebase"; 
+import firebaseApp from "../../firebase";
 
 const Login = () => {
   const [emailOrPhone, setEmailOrPhone] = useState("");
@@ -20,12 +20,11 @@ const Login = () => {
   const [otp, setOtp] = useState("");
   const [confirmationResult, setConfirmationResult] = useState(null);
   const navigate = useNavigate();
-  // const auth = getAuth(firebaseApp);
 
   const handleInputChange = (e) => {
     const input = e.target.value;
     setEmailOrPhone(input);
-    
+
     if (input.includes("@")) {
       setUserType("admin");
     } else if (/^\d{10}$/.test(input)) {
@@ -44,12 +43,20 @@ const Login = () => {
       const response = await fetch(`${Config.API_URL}/login/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: emailOrPhone, password: "none" }),
+        body: JSON.stringify({
+          username: emailOrPhone,
+          password: userType === "admin" ? password : "none",
+        }),
       });
+
       const data = await response.json();
+
       if (response.ok) {
         localStorage.setItem("user", JSON.stringify(data));
-        toast.success("Login Successful!", { position: "top-right", autoClose: 1000 });
+        toast.success("Login Successful!", {
+          position: "top-right",
+          autoClose: 1000,
+        });
         setTimeout(() => {
           navigate(data.user_type === "admin" ? "/order" : "/");
         }, 2500);
@@ -62,12 +69,17 @@ const Login = () => {
       setLoading(false);
     }
   };
+
   const setupRecaptcha = () => {
     if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {
-        size: "invisible",
-        callback: () => console.log("ReCAPTCHA verified"),
-      });
+      window.recaptchaVerifier = new RecaptchaVerifier(
+        auth,
+        "recaptcha-container",
+        {
+          size: "invisible",
+          callback: () => console.log("ReCAPTCHA verified"),
+        }
+      );
     }
   };
 
@@ -76,23 +88,29 @@ const Login = () => {
       toast.error("Enter a valid 10-digit US phone number.");
       return;
     }
-  
+
     try {
       setLoading(true);
-  
-      const res = await fetch(`${Config.API_URL}/check-user/?mobile_no=${emailOrPhone}`);
+
+      const res = await fetch(
+        `${Config.API_URL}/check-user/?mobile_no=${emailOrPhone}`
+      );
       const userData = await res.json();
-  
+
       if (!res.ok || userData.status === "False") {
         toast.error("User does not exist.");
         setLoading(false);
         return;
       }
-  
+
       setupRecaptcha();
       const appVerifier = window.recaptchaVerifier;
-  
-      const confirmation = await signInWithPhoneNumber(auth, `+1${emailOrPhone}`, appVerifier);
+
+      const confirmation = await signInWithPhoneNumber(
+        auth,
+        `+1${emailOrPhone}`,
+        appVerifier
+      );
       setConfirmationResult(confirmation);
       toast.info("OTP sent to your phone.");
     } catch (err) {
@@ -102,7 +120,6 @@ const Login = () => {
       setLoading(false);
     }
   };
-  
 
   const handleVerifyOtp = async () => {
     if (!otp) {
@@ -115,7 +132,6 @@ const Login = () => {
       await confirmationResult.confirm(otp);
       toast.success("Phone verified successfully!");
       await handleLogin({ preventDefault: () => {} });
-      // navigate("/");
     } catch (err) {
       toast.error("Invalid OTP.");
     } finally {
@@ -129,14 +145,23 @@ const Login = () => {
       <ToastContainer />
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="bg-white p-8 rounded-lg shadow-2xl w-full max-w-md">
-          <h2 className="text-3xl font-semibold text-center text-gray-800">Welcome Back</h2>
+          <h2 className="text-3xl font-semibold text-center text-gray-800">
+            Welcome Back
+          </h2>
           <p className="text-gray-500 text-center mt-2">LogIn to continue</p>
 
           {error && <p className="text-red-500 text-center mt-2">{error}</p>}
 
-          <form className="mt-6" onSubmit={userType === "admin" ? handleLogin : (e) => e.preventDefault()}>
+          <form
+            className="mt-6"
+            onSubmit={
+              userType === "admin" ? handleLogin : (e) => e.preventDefault()
+            }
+          >
             <div className="mb-4">
-              <label className="block text-gray-700 font-medium mb-2">Email or Phone</label>
+              <label className="block text-gray-700 font-medium mb-2">
+                Email or Phone
+              </label>
               <div className="flex items-center border rounded-lg p-2 bg-gray-100">
                 <FaUser className="text-gray-500 mr-2" />
                 <input
@@ -152,7 +177,9 @@ const Login = () => {
 
             {userType === "admin" && (
               <div className="mb-4">
-                <label className="block text-gray-700 font-medium mb-2">Password</label>
+                <label className="block text-gray-700 font-medium mb-2">
+                  Password
+                </label>
                 <div className="flex items-center border rounded-lg p-2 bg-gray-100 relative">
                   <FaLock className="text-gray-500 mr-2" />
                   <input
@@ -187,7 +214,9 @@ const Login = () => {
 
             {confirmationResult && (
               <div className="mt-4">
-                <label className="block text-gray-700 font-medium mb-2">Enter OTP</label>
+                <label className="block text-gray-700 font-medium mb-2">
+                  Enter OTP
+                </label>
                 <input
                   type="text"
                   className="w-full border rounded-lg p-2 bg-gray-100 outline-none"
@@ -219,7 +248,10 @@ const Login = () => {
 
           <p className="text-center text-gray-500 mt-4">
             Don't have an account?{" "}
-            <Link to="/signup" className="text-gray-700 font-medium hover:underline">
+            <Link
+              to="/signup"
+              className="text-gray-700 font-medium hover:underline"
+            >
               Create Account
             </Link>
           </p>
