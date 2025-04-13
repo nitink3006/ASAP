@@ -11,7 +11,6 @@ const Services = () => {
     const navigate = useNavigate();
 
     const user = JSON.parse(localStorage.getItem("user"));
-    console.log("user", user);
 
     useEffect(() => {
         // Fetch services from API
@@ -135,15 +134,13 @@ const Services = () => {
                                     <div
                                         key={i}
                                         className="text-center cursor-pointer"
-                                        onClick={() =>
-                                        {
-                                            if(user)
-                                            { handleSubCategoryClick(item)
+                                        onClick={() => {
+                                            if (user) {
+                                                handleSubCategoryClick(item);
                                             } else {
-                                                navigate("/login")
+                                                navigate("/login");
                                             }
-                                        }
-                                        }
+                                        }}
                                     >
                                         <div className="bg-gray-200 p-2 rounded-lg">
                                             <img
