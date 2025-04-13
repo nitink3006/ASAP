@@ -20,6 +20,8 @@ const Navbar = () => {
     const dropdownRef = useRef(null);
     const currentRoute = useLocation().pathname;
     const navigate = useNavigate();
+    const [isTyping, setIsTyping] = useState(false);
+
 
     useEffect(() => {
         const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -64,6 +66,8 @@ const Navbar = () => {
                 setLocationSuggestions([]);
             }
         };
+        setIsTyping(false); // hide dropdown when clicking outside
+
         document.addEventListener("mousedown", handleClickOutside);
         return () =>
             document.removeEventListener("mousedown", handleClickOutside);
@@ -147,13 +151,16 @@ const Navbar = () => {
                         <div className="flex items-center bg-gray-100 px-3 py-2 rounded-md shadow-sm border border-gray-300">
                             <MdLocationOn className="text-black mr-2 text-lg" />
                             <input
-                                ref={locationInputRef}
-                                type="text"
-                                placeholder="Enter location..."
-                                value={location}
-                                onChange={(e) => setLocation(e.target.value)}
-                                className="w-full bg-transparent outline-none text-gray-500 placeholder-gray-500"
-                            />
+  ref={locationInputRef}
+  type="text"
+  placeholder="Enter location..."
+  value={location}
+  onChange={(e) => {
+    setLocation(e.target.value);
+    setIsTyping(true); // user is typing
+  }}
+  className="w-full bg-transparent outline-none text-gray-500 placeholder-gray-500"
+/>
                             <button
                                 onClick={fetchCurrentLocation}
                                 className="ml-2 text-gray-700"
@@ -161,26 +168,23 @@ const Navbar = () => {
                                 <FaCrosshairs className="text-lg hover:text-black transition duration-200 cursor-pointer" />
                             </button>
                         </div>
-                        {locationSuggestions.length > 0 && (
-                            <ul
-                                ref={dropdownRef}
-                                className="absolute left-0 mt-1 w-full bg-white border border-gray-300 shadow-md rounded-md max-h-48 overflow-y-auto z-10"
-                            >
-                                {locationSuggestions.map(
-                                    (suggestion, index) => (
-                                        <li
-                                            key={index}
-                                            className="px-3 py-2 cursor-pointer hover:bg-gray-200"
-                                            onClick={() =>
-                                                handleSelectLocation(suggestion)
-                                            }
-                                        >
-                                            {suggestion}
-                                        </li>
-                                    )
-                                )}
-                            </ul>
-                        )}
+                        {locationSuggestions.length > 0 && isTyping && (
+  <ul className="suggestions-dropdown">
+    {locationSuggestions.map((suggestion, index) => (
+      <li
+        key={index}
+        className="suggestion-item"
+        onClick={() => {
+          handleSelectLocation(suggestion);
+          setIsTyping(false);
+        }}
+      >
+        {suggestion}
+      </li>
+    ))}
+  </ul>
+)}
+
                     </div>
 
                     {/* Search Input */}

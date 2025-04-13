@@ -145,7 +145,7 @@ const Login = () => {
           className="absolute inset-0 bg-white"
           style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/white-wall.png')" }}
         ></div>
-        <div className="bg-white p-8 rounded-lg z-50 shadow-2xl w-full max-w-md">
+        <div className="bg-white p-8 rounded-lg z-10 shadow-2xl w-full max-w-md">
           <h2 className="text-3xl font-semibold text-center text-gray-800">
             Welcome Back
           </h2>
