@@ -17,7 +17,6 @@ const Navbar = () => {
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
 
-
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     if (storedUser) {
@@ -93,7 +92,6 @@ const Navbar = () => {
     };
   }, []);
 
-
   const handleLogout = () => {
     localStorage.clear(); // Clear everything from local storage
     setUser(null);
@@ -119,6 +117,8 @@ const Navbar = () => {
                 onChange={(e) => setLocation(e.target.value)}
                 className="w-full bg-transparent outline-none text-gray-500 placeholder-gray-500"
               />
+
+            {/* Suggestions Dropdown */}
               <button onClick={fetchCurrentLocation} className="ml-2 text-gray-700">
                 <FaCrosshairs className="text-lg hover:text-black transition duration-200 cursor-pointer" />
               </button>
@@ -155,8 +155,6 @@ const Navbar = () => {
           </div>
         </div>
 
-
-
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center space-x-8 text-lg font-medium">
           <Link
@@ -170,8 +168,9 @@ const Navbar = () => {
           </Link>
           <Link to="/cart">
             <FaShoppingCart
-              className={`text-2xl cursor-pointer transition ${currentRoute === "/cart" ? "text-black" : "text-gray-500"
-                }`}
+              className={`text-2xl cursor-pointer transition ${
+                currentRoute === "/cart" ? "text-black" : "text-gray-500"
+              }`}
             />
           </Link>
 
@@ -183,7 +182,6 @@ const Navbar = () => {
               >
                 {user?.user?.[0]?.name?.charAt(0)?.toUpperCase() || ""}             
                  </button>
-
               {dropdownOpen && (
                 <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-300 rounded-md shadow-lg py-2 text-black">
                   <Link
@@ -225,9 +223,12 @@ const Navbar = () => {
           className="md:hidden text-2xl text-gray-700 flex items-center"
           onClick={() => setMenuOpen(!menuOpen)}
         >
-          {menuOpen ? <IoMdClose className="text-3xl text-black" /> : <IoMdMenu className="text-3xl text-black" />}
+          {menuOpen ? (
+            <IoMdClose className="text-3xl text-black" />
+          ) : (
+            <IoMdMenu className="text-3xl text-black" />
+          )}
         </button>
-
       </div>
 
       {/* Mobile Menu */}
