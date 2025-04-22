@@ -24,15 +24,19 @@ const Login = () => {
   const handleInputChange = (e) => {
     const input = e.target.value;
     setEmailOrPhone(input);
-
-    if (input.includes("@")) {
+  
+    if (input.toLowerCase() === "admin@gmail.com") {
       setUserType("admin");
+      setError("");
     } else if (/^\d{10}$/.test(input)) {
       setUserType("user");
+      setError("");
     } else {
       setUserType(null);
+      setError("Kindly login with your phone number.");
     }
   };
+  
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -161,7 +165,7 @@ const Login = () => {
           >
             <div className="mb-4">
               <label className="block text-gray-700 font-medium mb-2">
-                Email or Phone
+                Phone
               </label>
               <div className="flex items-center border rounded-lg p-2 bg-gray-100">
                 <FaUser className="text-gray-500 mr-2" />
@@ -176,7 +180,7 @@ const Login = () => {
               </div>
             </div>
 
-            {userType === "admin" && (
+            {emailOrPhone.toLowerCase() === "admin@gmail.com" && (
               <div className="mb-4">
                 <label className="block text-gray-700 font-medium mb-2">
                   Password
