@@ -32,7 +32,8 @@ const CheckOut = () => {
                     );
 
                     const total = unpaidOrders.reduce(
-                        (acc, item) => acc + parseFloat(item.amount),
+                        (acc, item) =>
+                            acc + parseFloat(item.amount * item.quantity),
                         0
                     );
 
@@ -55,11 +56,16 @@ const CheckOut = () => {
             <div className="flex justify-center mt-12 bg-gray-100 py-10">
                 <div className="flex w-full max-w-6xl gap-6 px-6">
                     {/* Left Box */}
-                    <BookingDetails totalAmount={totalPrice} selectedServices={cartItems} />
+                    <BookingDetails
+                        totalAmount={totalPrice}
+                        selectedServices={cartItems}
+                    />
 
                     {/* Right Box */}
                     <div className="w-1/2 bg-white p-6 rounded-lg shadow-md">
-                        <h1 className="text-xl font-semibold mb-4">Your Cart</h1>
+                        <h1 className="text-xl font-semibold mb-4">
+                            Your Cart
+                        </h1>
 
                         {loading ? (
                             <p>Loading...</p>
@@ -76,16 +82,20 @@ const CheckOut = () => {
                                                     ? `${Config.MEDIA_URL}${item.service.images}`
                                                     : "https://via.placeholder.com/50"
                                             }
-                                            alt={item.service?.name || "Service"}
+                                            alt={
+                                                item.service?.name || "Service"
+                                            }
                                             className="w-12 h-12 rounded object-cover"
                                         />
                                         <div className="flex-1 ml-4">
                                             <h2 className="font-semibold">
-                                                {item.service?.name || item.name}
+                                                {item.service?.name ||
+                                                    item.name}
                                             </h2>
                                             <p className="text-sm text-gray-600">
-                                                {item.service?.description || item.description} ×{" "}
-                                                {item.quantity}
+                                                {item.service?.description ||
+                                                    item.description}{" "}
+                                                × {item.quantity}
                                             </p>
                                         </div>
                                         <div className="font-semibold text-right">
@@ -116,7 +126,9 @@ const CheckOut = () => {
 
                         {/* Bottom Payment Display */}
                         <div className="flex justify-between items-center bg-gray-100 mt-6 p-4 rounded-lg shadow-inner">
-                            <span className="text-base font-medium">Amount to Pay</span>
+                            <span className="text-base font-medium">
+                                Amount to Pay
+                            </span>
                             <span className="text-lg font-bold text-green-600">
                                 ${totalPrice}
                             </span>

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { FaStar, FaPlus, FaMinus } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import Config from "../../../Config";
@@ -20,7 +22,6 @@ const ServicePage = () => {
     const [selectedCategory, setSelectedCategory] = useState(null);
     const user = JSON.parse(localStorage.getItem("user"));
     const token = user?.token || null;
-
 
     useEffect(() => {
         const fetchServices = async () => {
@@ -64,18 +65,31 @@ const ServicePage = () => {
         if (subCategoryId) fetchServices();
     }, [subCategoryId]);
 
+    const notifySuccess = (msg) => {
+        if (!toast.isActive(msg)) {
+            toast.success(msg, { toastId: msg });
+        }
+    };
+    const notifyError = (msg) => {
+        if (!toast.isActive(msg)) {
+            toast.error(msg, { toastId: msg });
+        }
+    };
+
     const handleAddToCart = (service) => {
         setCartItems((prevItems) => {
             const existingItem = prevItems.find(
                 (item) => item.service_id === service.service_id
             );
             if (existingItem) {
+                notifySuccess("Increased quantity in cart");
                 return prevItems.map((item) =>
                     item.service_id === service.service_id
                         ? { ...item, quantity: (item.quantity || 1) + 1 }
                         : item
                 );
             }
+            notifySuccess("Added to cart");
             return [
                 ...prevItems,
                 {
@@ -88,7 +102,6 @@ const ServicePage = () => {
             ];
         });
     };
-
     const handleIncreaseQuantity = (serviceId) => {
         setCartItems((prevItems) =>
             prevItems.map((item) =>
@@ -97,20 +110,34 @@ const ServicePage = () => {
                     : item
             )
         );
+        toast.success("Increased quantity in cart");
     };
 
     const handleDecreaseQuantity = (serviceId) => {
         setCartItems((prevItems) => {
-            const updatedItems = prevItems.map((item) =>
-                item.service_id === serviceId && item.quantity > 1
-                    ? { ...item, quantity: item.quantity - 1 }
-                    : item
+            const updatedItems = prevItems.map((item) => {
+                if (item.service_id === serviceId) {
+                    const newQuantity = item.quantity - 1;
+                    return { ...item, quantity: newQuantity };
+                }
+                return item;
+            });
+
+            const filteredItems = updatedItems.filter(
+                (item) => item.quantity > 0
             );
-            // Remove item if quantity would become 0
-            return updatedItems.filter(
-                (item) =>
-                    !(item.service_id === serviceId && item.quantity === 1)
+
+            const wasRemoved = updatedItems.some(
+                (item) => item.service_id === serviceId && item.quantity === 0
             );
+
+            if (wasRemoved) {
+                toast.info("Item removed from cart");
+            } else {
+                toast.success("Decreased quantity in cart");
+            }
+
+            return filteredItems;
         });
     };
 
@@ -131,17 +158,21 @@ const ServicePage = () => {
                 })),
             };
 
-            const response = await fetch(`${Config.API_URL}/orders/`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Token ${token}`,
-                },
-                body: JSON.stringify(orderPayload),
-            });
+            const response = await fetch(
+                `${Config.API_URL}/orders/?type=cart-quantity`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Token ${token}`,
+                    },
+                    body: JSON.stringify(orderPayload),
+                }
+            );
 
             if (!response.ok) throw new Error("Order submission failed");
 
+            notifySuccess("Cart submitted successfully");
             navigate("/cart", {
                 state: {
                     cartItems,
@@ -152,6 +183,7 @@ const ServicePage = () => {
                 },
             });
         } catch (error) {
+            notifyError("Something went wrong submitting your cart");
             console.error("Order submission error:", error);
             navigate("/cart", {
                 state: {
@@ -182,6 +214,8 @@ const ServicePage = () => {
     return (
         <>
             <Navbar />
+            {/* Toast container goes here */}
+            <ToastContainer position="top-right" autoClose={3000} />
             <div className="flex flex-col lg:flex-row p-4 md:p-6 lg:p-10 mt-24 min-h-screen mx-auto">
                 {/* Left Sidebar */}
                 <div className="w-full lg:w-2/7 lg:pr-4 lg:sticky lg:self-start lg:top-24 mb-6 lg:mb-0">

@@ -9,7 +9,7 @@ const BookingDetails = ({ totalAmount, selectedServices }) => {
     const navigate = useNavigate();
     const user = JSON.parse(localStorage.getItem("user"));
     const token = user?.token || null;
-    const userDetails = user?.customer || {};
+    const userDetails = user?.user[0] || {};
     const total_amount = totalAmount || 0;
     const [formData, setFormData] = useState({
         name: userDetails.name || "",
@@ -23,7 +23,6 @@ const BookingDetails = ({ totalAmount, selectedServices }) => {
         preferred_time: "",
         payment_method: "",
     });
-console.log("selectedServices",selectedServices)
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
@@ -69,7 +68,6 @@ console.log("selectedServices",selectedServices)
             toast.error("order confirmation failed. Please try again.");
         }
     };
-
 
     return (
         <div className="max-w-3xl mx-auto bg-white shadow-md rounded-lg p-6 space-y-6">
@@ -184,7 +182,7 @@ console.log("selectedServices",selectedServices)
                     </div>
 
                     {/* preferred_time Selection & payment_method
- */}
+                     */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label className=" text-sm font-medium text-gray-700 flex items-center gap-2">
@@ -225,8 +223,8 @@ console.log("selectedServices",selectedServices)
                         </h4>
                         <p className="text-xs text-gray-600 mb-1">
                             Free cancellations if done more than 3 hrs before
-                            the service or if a professional isn’t assigned.
-                            A fee will be charged otherwise.
+                            the service or if a professional isn’t assigned. A
+                            fee will be charged otherwise.
                         </p>
                         <a
                             href="#"
@@ -244,7 +242,6 @@ console.log("selectedServices",selectedServices)
                         >
                             Confirm Booking
                         </button>
-
                     </div>
                 </>
             ) : (
@@ -259,11 +256,14 @@ console.log("selectedServices",selectedServices)
                 </div>
             )}
             {showSuccessModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white p-6 rounded-lg shadow-md text-center max-w-sm w-full">
-                        <h2 className="text-xl font-bold mb-2">payment method
-                            Successful!</h2>
-                        <p className="text-gray-600 mb-4">Your booking has been confirmed.</p>
+                <div className="fixed inset-0  bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-gray-200 p-6 rounded-lg shadow-md text-center max-w-sm w-full">
+                        <h2 className="text-xl font-bold mb-2">
+                            payment method Successful!
+                        </h2>
+                        <p className="text-gray-600 mb-4">
+                            Your booking has been confirmed.
+                        </p>
                         <button
                             className="bg-[#7B41E6] text-white py-2 cursor-pointer px-4 rounded hover:bg-[#6734c2]"
                             onClick={() => navigate("/your-order")}
@@ -273,7 +273,6 @@ console.log("selectedServices",selectedServices)
                     </div>
                 </div>
             )}
-
         </div>
     );
 };

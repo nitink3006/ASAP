@@ -32,7 +32,8 @@ const Cart = () => {
                     );
 
                     const total = unpaidOrders.reduce(
-                        (acc, item) => acc + parseFloat(item.amount),
+                        (acc, item) =>
+                            acc + parseFloat(item.amount * item.quantity),
                         0
                     );
 
@@ -130,7 +131,7 @@ const Cart = () => {
             setCartItems(updatedItems);
 
             const updatedTotal = updatedItems.reduce(
-                (acc, item) => acc + parseFloat(item.amount),
+                (acc, item) => acc + parseFloat(item.amount * item.quantity),
                 0
             );
             setTotalPrice(updatedTotal);
@@ -227,7 +228,7 @@ const Cart = () => {
                                                     onClick={() =>
                                                         removeItem(item.id)
                                                     }
-                                                    className="text-gray-400 hover:text-red-500 text-xl"
+                                                    className="text-gray-400 hover:text-red-500 cursor-pointer text-xl"
                                                 >
                                                     ×
                                                 </button>
@@ -286,21 +287,21 @@ const Cart = () => {
                             <p className="text-gray-500 text-lg">
                                 Your cart is empty
                             </p>
-                            <Link to="/service-page">
-                                <button className="mt-4 cursor-pointer py-2 px-6 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition">
-                                    Browse Services
+                            {/* <Link to="/#services">
+                                <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
+                                    Browse More Services
                                 </button>
-                            </Link>
+                            </Link> */}
                         </div>
                     )}
 
                     {cartItems.length > 0 && (
                         <div className="mt-6 flex gap-4">
-                            <Link to="/" className="flex-1">
+                            {/* <Link to="/" className="flex-1">
                                 <button className="w-full cursor-pointer py-3 px-4 border border-purple-600 text-purple-600 rounded-lg font-medium hover:bg-purple-50 transition">
                                     Add More Services
                                 </button>
-                            </Link>
+                            </Link> */}
                             <Link
                                 to="/check-out"
                                 state={{ cartItems, totalPrice }}
