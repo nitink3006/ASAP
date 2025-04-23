@@ -22,6 +22,8 @@ const Service = () => {
   const [subCategories, setSubCategories] = useState([]);
   const [category, setCategory] = useState("");
   const [subcategory, setSubcategory] = useState("");
+  const [selectedCategoryId, setSelectedCategoryId] = useState("");
+  const [selectedSubcategoryId, setSelectedSubcategoryId] = useState("");
 
   const fileInputRef = useRef(null);
   const editFileInputRef = useRef(null);
@@ -156,16 +158,45 @@ const Service = () => {
   };
 
   const handleCategoryChange = (e, isEdit = false) => {
-    const selectedCategory = e.target.value;
+    const selectedCategoryValue = e.target.value;
+    
     if (isEdit) {
+      // Find the selected category object
+      const categoryObj = categories.find(cat => cat.id === selectedCategoryValue);
+      
       setEditingService((prev) => ({
         ...prev,
-        category: { name: selectedCategory },
-        sub_category: { name: "" },
+        category: categoryObj || { name: "", id: "" },
+        category_id: selectedCategoryValue,
+        sub_category: { name: "", id: "" }
       }));
     } else {
-      setCategory(selectedCategory);
+      // Store both the category name and ID
+      const categoryObj = categories.find(cat => cat.id === selectedCategoryValue);
+      setCategory(categoryObj ? categoryObj.name : "");
+      setSelectedCategoryId(selectedCategoryValue);
       setSubcategory("");
+      setSelectedSubcategoryId("");
+    }
+  };
+
+  const handleSubcategoryChange = (e, isEdit = false) => {
+    const selectedSubcategoryValue = e.target.value;
+    
+    if (isEdit) {
+      // Find the selected subcategory object
+      const subcategoryObj = subCategories.find(subcat => subcat.id === selectedSubcategoryValue);
+      
+      setEditingService((prev) => ({
+        ...prev,
+        sub_category: subcategoryObj || { name: "", id: "" },
+        sub_category_id: selectedSubcategoryValue
+      }));
+    } else {
+      // Store both the subcategory name and ID
+      const subcategoryObj = subCategories.find(subcat => subcat.id === selectedSubcategoryValue);
+      setSubcategory(subcategoryObj ? subcategoryObj.name : "");
+      setSelectedSubcategoryId(selectedSubcategoryValue);
     }
   };
 
@@ -179,12 +210,12 @@ const Service = () => {
       return;
     }
 
-    if (!category) {
+    if (!selectedCategoryId) {
       toast.error("Please select a category");
       return;
     }
 
-    if (!subcategory) {
+    if (!selectedSubcategoryId) {
       toast.error("Please select a subcategory");
       return;
     }
@@ -192,34 +223,9 @@ const Service = () => {
     setLoading(true);
     setError("");
 
-    // Find the category ID
-    const selectedCategoryObj = categories.find((cat) => cat.name === category);
-    const categoryId = selectedCategoryObj ? selectedCategoryObj.id : null;
-
-    // Find the subcategory ID
-    const selectedSubcategoryObj = getFilteredSubcategories(category).find(
-      (subcat) => subcat.name === subcategory
-    );
-    const subcategoryId = selectedSubcategoryObj
-      ? selectedSubcategoryObj.id
-      : null;
-
-    if (!categoryId) {
-      toast.error("Invalid category selected");
-      setLoading(false);
-      return;
-    }
-
-    if (!subcategoryId) {
-      toast.error("Invalid subcategory selected");
-      setLoading(false);
-      return;
-    }
-
     const formData = new FormData();
     formData.append("name", serviceName);
-    // formData.append("category_id", categoryId);
-    formData.append("category_id", subcategoryId);
+    formData.append("category_id", selectedSubcategoryId); // Using subcategory ID here based on your API structure
     if (serviceImage) formData.append("images", serviceImage);
 
     try {
@@ -235,16 +241,21 @@ const Service = () => {
         setServiceName("");
         setCategory("");
         setSubcategory("");
+        setSelectedCategoryId("");
+        setSelectedSubcategoryId("");
         removeImage();
 
         // Refresh services list
         fetchServices();
       } else {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to add service");
+        const errorMessage = typeof errorData === 'object' 
+          ? JSON.stringify(errorData) 
+          : errorData.message || "Failed to add service";
+        throw new Error(errorMessage);
       }
     } catch (error) {
-      handleError("Something went wrong. Please try again.");
+      handleError(error.message);
     } finally {
       setLoading(false);
     }
@@ -252,11 +263,25 @@ const Service = () => {
 
   // Start editing a service
   const startEditing = (service) => {
+    // Ensure we capture the IDs correctly
+    const serviceCategory = categories.find(cat => 
+      cat.name === (service.category?.category?.name || "")
+    );
+    
+    const serviceSubcategory = subCategories.find(subcat => 
+      subcat.name === (service.category?.name || "")
+    );
+
     setEditingService({
       ...service,
       previewImage: service.images,
       newImage: null,
+      category: serviceCategory || { name: "", id: "" },
+      category_id: serviceCategory?.id || "",
+      sub_category: serviceSubcategory || { name: "", id: "" },
+      sub_category_id: serviceSubcategory?.id || ""
     });
+    
     setIsEditModalOpen(true);
   };
 
@@ -269,21 +294,14 @@ const Service = () => {
       const formData = new FormData();
       formData.append("name", editingService.name);
 
-      // Find category and subcategory IDs
-      const selectedCategory = categories.find(
-        (cat) => cat.name === editingService.category.name
-      );
-      const selectedSubcategory = subCategories.find(
-        (subcat) =>
-          subcat.name === editingService.sub_category.name &&
-          subcat.category.name === editingService.category.name
-      );
+      // Use the selected subcategory ID directly for the API
+      if (editingService.sub_category_id) {
+        formData.append("category_id", editingService.sub_category_id);
+      }
 
-      if (selectedCategory) formData.append("category_id", selectedCategory.id);
-      if (selectedSubcategory)
-        formData.append("sub_category_id", selectedSubcategory.id);
-      if (editingService.newImage)
+      if (editingService.newImage) {
         formData.append("images", editingService.newImage);
+      }
 
       const response = await fetch(
         `${Config.API_URL}/service-single/${editingService.id}/`,
@@ -300,7 +318,10 @@ const Service = () => {
         fetchServices();
       } else {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to update service");
+        const errorMessage = typeof errorData === 'object' 
+          ? JSON.stringify(errorData) 
+          : errorData.message || "Failed to update service";
+        throw new Error(errorMessage);
       }
     } catch (error) {
       handleError(error.message);
@@ -310,9 +331,10 @@ const Service = () => {
   };
 
   // Get filtered subcategories for a category
-  const getFilteredSubcategories = (categoryName) => {
+  const getFilteredSubcategories = (categoryId) => {
+    if (!categoryId) return [];
     return subCategories.filter(
-      (subcat) => subcat.category.name === categoryName
+      (subcat) => subcat.category?.id === categoryId
     );
   };
 
@@ -366,14 +388,14 @@ const Service = () => {
                   Category
                 </label>
                 <select
-                  value={category}
+                  value={selectedCategoryId}
                   onChange={(e) => handleCategoryChange(e, false)}
                   className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-gray-400"
                   required
                 >
                   <option value="">Select Category</option>
                   {categories.map((cat) => (
-                    <option key={cat.id} value={cat.name}>
+                    <option key={cat.id} value={cat.id}>
                       {cat.name}
                     </option>
                   ))}
@@ -386,21 +408,21 @@ const Service = () => {
                   Subcategory
                 </label>
                 <select
-                  value={subcategory}
-                  onChange={(e) => setSubcategory(e.target.value)}
+                  value={selectedSubcategoryId}
+                  onChange={(e) => handleSubcategoryChange(e, false)}
                   className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-gray-400"
-                  disabled={!category}
+                  disabled={!selectedCategoryId}
                   required
                 >
                   <option value="">
-                    {category
-                      ? getFilteredSubcategories(category).length === 0
+                    {selectedCategoryId
+                      ? getFilteredSubcategories(selectedCategoryId).length === 0
                         ? "No subcategories found"
                         : "Select Subcategory"
                       : "Select a category first"}
                   </option>
-                  {getFilteredSubcategories(category).map((subcat) => (
-                    <option key={subcat.id} value={subcat.name}>
+                  {getFilteredSubcategories(selectedCategoryId).map((subcat) => (
+                    <option key={subcat.id} value={subcat.id}>
                       {subcat.name}
                     </option>
                   ))}
@@ -491,7 +513,7 @@ const Service = () => {
                       <tr key={srv.id} className="border-b hover:bg-gray-50">
                         <td className="p-4">{srv.name}</td>
                         <td className="p-4 text-center">
-                          {srv.category.category?.name || "N/A"}
+                          {srv.category?.category?.name || "N/A"}
                         </td>
                         <td className="p-4 text-center">
                           {srv.category?.name || "N/A"}
@@ -577,14 +599,14 @@ const Service = () => {
                   Category
                 </label>
                 <select
-                  value={editingService.category.name}
+                  value={editingService.category_id || ""}
                   onChange={(e) => handleCategoryChange(e, true)}
                   className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-gray-400"
                   required
                 >
                   <option value="">Select Category</option>
                   {categories.map((cat) => (
-                    <option key={cat.id} value={cat.name}>
+                    <option key={cat.id} value={cat.id}>
                       {cat.name}
                     </option>
                   ))}
@@ -597,20 +619,16 @@ const Service = () => {
                   Subcategory
                 </label>
                 <select
-                  value={editingService.sub_category.name}
-                  onChange={(e) =>
-                    setEditingService((prev) => ({
-                      ...prev,
-                      sub_category: { name: e.target.value },
-                    }))
-                  }
+                  value={editingService.sub_category_id || ""}
+                  onChange={(e) => handleSubcategoryChange(e, true)}
                   className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-gray-400"
                   required
+                  disabled={!editingService.category_id}
                 >
                   <option value="">Select Subcategory</option>
-                  {getFilteredSubcategories(editingService.category.name).map(
+                  {getFilteredSubcategories(editingService.category_id).map(
                     (subcat) => (
-                      <option key={subcat.id} value={subcat.name}>
+                      <option key={subcat.id} value={subcat.id}>
                         {subcat.name}
                       </option>
                     )
@@ -653,7 +671,6 @@ const Service = () => {
               </div>
 
               {/* Submit Buttons */}
-
               <div className="flex justify-end space-x-2 pt-4">
                 <button
                   type="button"
@@ -671,22 +688,6 @@ const Service = () => {
                   {loading ? "Updating..." : "Update Service"}
                 </button>
               </div>
-              {/* <div className="flex space-x-4">
-                <button
-                  type="submit"
-                  className="flex-1 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-colors"
-                  disabled={loading}
-                >
-                  {loading ? "Updating..." : "Update Service"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsEditModalOpen(false)}
-                  className="flex-1 bg-gray-300 text-gray-700 p-3 rounded-lg hover:bg-gray-400 transition-colors"
-                >
-                  Cancel
-                </button>
-              </div> */}
             </form>
           </div>
         </div>
