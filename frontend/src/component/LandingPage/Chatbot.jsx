@@ -1,11 +1,7 @@
 import { useState, useEffect } from "react";
 import { FiMessageCircle, FiSend, FiX } from "react-icons/fi";
 import axios from "axios";
-import faqData from "./Faq.json";
-
-
-const API_KEY = "AIzaSyA90GXl_wdqRdaJM0qUqyVtNIDNSVmvHxY";
-const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
+import Config from "../../Config";
 
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,6 +10,11 @@ const Chatbot = () => {
   const [loading, setLoading] = useState(false);
   const [showGreeting, setShowGreeting] = useState(true);
   const [animate, setAnimate] = useState("animate-bounce");
+
+  const userData = JSON.parse(localStorage.getItem("user"));
+  console.log("User Data:", userData);
+  const user = userData?.user?.[0]; 
+  const userId = user?.phone || null;
 
   useEffect(() => {
     const timer = setTimeout(() => setShowGreeting(false), 3000);
@@ -25,65 +26,36 @@ const Chatbot = () => {
     return () => clearTimeout(bounceTimer);
   }, []);
 
+  useEffect(() => {
+    if (!user) {
+      setMessages([{ text: "Please login to continue with ASAP Assistant.", sender: "bot" }]);
+    }
+  }, [user]);
+
   const handleSend = async () => {
-    if (!input.trim()) return;
-  
+    if (!input.trim() || !user) return;
+
     const newMessages = [...messages, { text: input, sender: "user" }];
     setMessages(newMessages);
     setInput("");
     setLoading(true);
-  
-    // Convert user input to lowercase for case-insensitive comparison
-    const userQuery = input.toLowerCase().replace(/[^\w\s]/g, ""); // Remove special characters
-  
-    // Extract keywords (removes common words like "what", "is", "the", etc.)
-    const extractKeywords = (text) => {
-      return text
-        .toLowerCase()
-        .replace(/[^\w\s]/g, "") // Remove punctuation
-        .split(" ") // Split into words
-        .filter((word) => word.length > 2); // Keep words longer than 2 letters
-    };
-  
-    const userKeywords = extractKeywords(userQuery);
-  
-    if (faqData.faqs && Array.isArray(faqData.faqs)) {
-      let bestMatch = null;
-      let highestMatchCount = 0;
-  
-      faqData.faqs.forEach((faq) => {
-        const faqKeywords = extractKeywords(faq.question);
-        const matchCount = faqKeywords.filter((word) =>
-          userKeywords.includes(word)
-        ).length;
-  
-        if (matchCount > highestMatchCount) {
-          highestMatchCount = matchCount;
-          bestMatch = faq;
-        }
+
+    try {
+      const response = await axios.post(`${Config.API_URL}/ai-assistant/`, {
+        user_id: userId,
+        query: input,
       });
-  
-      // If we find a good match, respond with it
-      if (bestMatch && highestMatchCount > 0) {
-        setMessages([
-          ...newMessages,
-          { text: bestMatch.answer, sender: "bot" },
-        ]);
-        setLoading(false);
-        return;
-      }
+
+     const botReply = response.data?.reply || "Sorry, no response from the assistant.";
+      setMessages([...newMessages, { text: botReply, sender: "bot" }]);
+    } catch (error) {
+      console.error("API error:", error);
+      setMessages([...newMessages, { text: "Something went wrong. Please try again later.", sender: "bot" }]);
+    } finally {
+      setLoading(false);
     }
-  
-    // If no good match is found, send a polite fallback message
-    const fallbackMessage =
-      "Sorry, I couldn't answer this. Please contact our support team at +1234567890 or email us at support@example.com.";
-  
-    setMessages([...newMessages, { text: fallbackMessage, sender: "bot" }]);
-    setLoading(false);
   };
-  
-  
-  
+
   return (
     <div className="fixed bottom-4 right-4 z-50">
       {!isOpen && (
@@ -132,10 +104,14 @@ const Chatbot = () => {
               placeholder="Type a message..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && handleSend()}
-              disabled={loading}
+              onKeyDown={(e) => e.key === "Enter" && handleSend()}
+              disabled={loading || !user}
             />
-            <button onClick={handleSend} className="bg-gray-700 cursor-pointer text-white p-3 rounded-xl hover:scale-105 transition-transform" disabled={loading}>
+            <button
+              onClick={handleSend}
+              className="bg-gray-700 cursor-pointer text-white p-3 rounded-xl hover:scale-105 transition-transform"
+              disabled={loading || !user}
+            >
               <FiSend size={20} />
             </button>
           </div>
