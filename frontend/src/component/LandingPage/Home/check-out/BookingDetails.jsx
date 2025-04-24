@@ -427,7 +427,7 @@ const BookingDetails = ({ totalAmount, selectedServices }) => {
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700">
-                                Pincode *
+                                Zip Code *
                             </label>
                             <input
                                 type="text"
