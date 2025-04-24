@@ -221,7 +221,7 @@ const ServicePage = () => {
                                         Quantity: {srv.quantity}
                                     </p>
                                     <p className="text-sm text-gray-600">
-                                        Price: ₹{srv.price}
+                                        Price: ${srv.price}
                                     </p>
                                 </div>
                             ))}
