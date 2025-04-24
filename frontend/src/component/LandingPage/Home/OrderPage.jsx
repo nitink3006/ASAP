@@ -310,7 +310,7 @@ const ServicePage = () => {
                                 {service.address}
                             </p>
                             <p>
-                                <strong>Total Amount:</strong> ₹
+                                <strong>Total Amount:</strong> $
                                 {service.total_amount}
                             </p>
                             {(service.status === "Pending" ||
