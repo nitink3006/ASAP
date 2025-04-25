@@ -280,7 +280,7 @@ const ServicePage = () => {
                             {selectedCategory && (
                                 <button
                                     onClick={() => setSelectedCategory(null)}
-                                    className="text-purple-600 text-sm underline"
+                                    className="text-purple-600 text-sm cursor-pointer underline"
                                 >
                                     Show all services
                                 </button>
