@@ -171,7 +171,7 @@ const Login = () => {
                 <FaUser className="text-gray-500 mr-2" />
                 <input
                   type="text"
-                  placeholder="Enter email or phone"
+                  placeholder="Enter your phone Number"
                   className="w-full outline-none bg-transparent"
                   value={emailOrPhone}
                   onChange={handleInputChange}
