@@ -138,216 +138,190 @@ const Navbar = () => {
         }
     }, []);
 
-    return (
-        <nav className="bg-white text-black shadow-md p-4 fixed top-0 w-full z-50 border-b border-gray-200">
-            <div className="container mx-auto flex items-center justify-between md:px-0 lg:px-16">
-                <Link to="/">
-                    <h1 className="text-2xl font-bold tracking-wide">ASAP</h1>
-                </Link>
+   return (
+    <nav className="bg-white text-black shadow-md p-4 fixed top-0 w-full z-50 border-b border-gray-200">
+        <div className="container mx-auto flex items-center justify-between md:px-0 lg:px-16">
+            <Link to="/" className="cursor-pointer">
+                <h1 className="text-2xl font-bold tracking-wide">ASAP</h1>
+            </Link>
 
-                <div className="hidden md:flex flex-wrap items-center space-x-6 w-fit md:max-w-96 lg:max-w-3xl">
-                    {/* Location Input */}
-                    <div className="relative flex-1 min-w-[100px] max-w-[250px] sm:max-w-[180px] md:max-w-[250px]">
-                        <div className="flex items-center bg-gray-100 px-3 py-2 rounded-md shadow-sm border border-gray-300">
-                            <MdLocationOn className="text-black mr-2 text-lg" />
-                            <input
-  ref={locationInputRef}
-  type="text"
-  placeholder="Enter location..."
-  value={location}
-  onChange={(e) => {
-    setLocation(e.target.value);
-    setIsTyping(true); // user is typing
-  }}
-  className="w-full bg-transparent outline-none text-gray-500 placeholder-gray-500"
-/>
-                            <button
-                                onClick={fetchCurrentLocation}
-                                className="ml-2 text-gray-700"
-                            >
-                                <FaCrosshairs className="text-lg hover:text-black transition duration-200 cursor-pointer" />
-                            </button>
-                        </div>
-                        {locationSuggestions.length > 0 && isTyping && (
-  <ul className="suggestions-dropdown">
-    {locationSuggestions.map((suggestion, index) => (
-      <li
-        key={index}
-        className="suggestion-item"
-        onClick={() => {
-          handleSelectLocation(suggestion);
-          setIsTyping(false);
-        }}
-      >
-        {suggestion}
-      </li>
-    ))}
-  </ul>
-)}
-
+            <div className="hidden md:flex flex-wrap items-center space-x-6 w-fit md:max-w-96 lg:max-w-3xl">
+                {/* Location Input */}
+                <div className="relative flex-1 min-w-[100px] max-w-[250px] sm:max-w-[180px] md:max-w-[250px]">
+                    <div className="flex items-center bg-gray-100 px-3 py-2 rounded-md shadow-sm border border-gray-300">
+                        <MdLocationOn className="text-black mr-2 text-lg" />
+                        <input
+                            ref={locationInputRef}
+                            type="text"
+                            placeholder="Enter location..."
+                            value={location}
+                            onChange={(e) => {
+                                setLocation(e.target.value);
+                                setIsTyping(true);
+                            }}
+                            className="w-full bg-transparent outline-none text-gray-500 placeholder-gray-500"
+                        />
+                        <button
+                            onClick={fetchCurrentLocation}
+                            className="ml-2 text-gray-700 cursor-pointer"
+                        >
+                            <FaCrosshairs className="text-lg hover:text-black transition duration-200" />
+                        </button>
                     </div>
-
-                    {/* Search Input */}
-                    {/* <div className="flex-1 min-w-[100px] max-w-[250px] sm:max-w-[180px] md:max-w-[250px]">
-                        <div className="flex items-center bg-gray-100 px-3 py-2 rounded-md shadow-sm border border-gray-300">
-                            <FaSearch className="text-black mr-2 text-lg" />
-                            <input
-                                type="text"
-                                placeholder="Search services..."
-                                value={service}
-                                onChange={(e) => setService(e.target.value)}
-                                className="w-full bg-transparent outline-none text-gray-500 placeholder-gray-500"
-                            />
-                        </div>
-                    </div> */}
-
+                    {locationSuggestions.length > 0 && isTyping && (
+                        <ul className="suggestions-dropdown">
+                            {locationSuggestions.map((suggestion, index) => (
+                                <li
+                                    key={index}
+                                    className="suggestion-item cursor-pointer hover:bg-gray-100 transition px-2 py-1 rounded"
+                                    onClick={() => {
+                                        handleSelectLocation(suggestion);
+                                        setIsTyping(false);
+                                    }}
+                                >
+                                    {suggestion}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
                 </div>
+            </div>
 
-                {/* Desktop Nav */}
-                <div className="hidden md:flex items-center space-x-8 text-lg font-medium">
+            {/* Desktop Nav */}
+            <div className="hidden md:flex items-center space-x-8 text-lg font-medium">
+                <Link
+                    to="/"
+                    className={`transition duration-300 cursor-pointer ${
+                        currentRoute === "/"
+                            ? "text-black font-semibold border-b-2 border-black"
+                            : "text-gray-500 hover:text-black"
+                    }`}
+                >
+                    Home
+                </Link>
+                <Link to="/cart" className="relative cursor-pointer">
+                    <FaShoppingCart
+                        className={`text-2xl transition ${
+                            currentRoute === "/cart"
+                                ? "text-black"
+                                : "text-gray-500 hover:text-blue-600"
+                        }`}
+                    />
+                    {cartItemCount > 0 && (
+                        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                            {cartItemCount}
+                        </span>
+                    )}
+                </Link>
+                {user ? (
+                    <div className="relative">
+                        <button
+                            onClick={() => setDropdownOpen(!dropdownOpen)}
+                            className="relative flex items-center justify-center w-10 h-10 bg-gray-300 rounded-full text-lg font-semibold text-black cursor-pointer"
+                        >
+                            {user?.user?.[0]?.name?.charAt(0)?.toUpperCase() || ""}
+                        </button>
+                        {dropdownOpen && (
+                            <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-300 rounded-md shadow-lg py-2 text-black">
+                                <Link
+                                    to="/help-center"
+                                    className="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                >
+                                    Help Center
+                                </Link>
+                                <Link
+                                    to="/your-order"
+                                    className="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                >
+                                    Your Order
+                                </Link>
+                                <button
+                                    onClick={handleLogout}
+                                    className="block w-full text-left px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                >
+                                    Logout
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                ) : (
                     <Link
-                        to="/"
-                        className={`transition duration-300 ${
-                            currentRoute === "/"
+                        to="/login"
+                        className={`transition duration-300 cursor-pointer ${
+                            currentRoute === "/login"
                                 ? "text-black font-semibold border-b-2 border-black"
                                 : "text-gray-500 hover:text-black"
                         }`}
                     >
-                        Home
+                        Login
                     </Link>
-                    <Link to="/cart" className="relative">
-                        <FaShoppingCart
-                            className={`text-2xl transition ${
-                                currentRoute === "/cart"
-                                    ? "text-black"
-                                    : "text-gray-500 hover:text-blue-600"
-                            }`}
-                        />
-                        {cartItemCount > 0 && (
-                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
-                                {cartItemCount}
-                            </span>
-                        )}
-                    </Link>
-                    {user ? (
-                        <div className="relative">
-                            <button
-                                onClick={() => setDropdownOpen(!dropdownOpen)}
-                                className="relative flex items-center justify-center w-10 h-10 bg-gray-300 rounded-full text-lg font-semibold text-black"
-                            >
-                                {user?.user?.[0]?.name
-                                    ?.charAt(0)
-                                    ?.toUpperCase() || ""}
-                            </button>
-                            {dropdownOpen && (
-                                <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-300 rounded-md shadow-lg py-2 text-black">
-                                    <Link
-                                        to="/help-center"
-                                        className="block px-4 py-2 hover:bg-gray-100"
-                                    >
-                                        Help Center
-                                    </Link>
-                                    <Link
-                                        to="/your-order"
-                                        className="block px-4 py-2 hover:bg-gray-100"
-                                    >
-                                        Your Order
-                                    </Link>
-                                    <button
-                                        onClick={handleLogout}
-                                        className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-                                    >
-                                        Logout
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                    ) : (
-                        <Link
-                            to="/login"
-                            className={`transition duration-300 ${
-                                currentRoute === "/login"
-                                    ? "text-black font-semibold border-b-2 border-black"
-                                    : "text-gray-500 hover:text-black"
-                            }`}
-                        >
-                            Login
-                        </Link>
-                    )}
-                </div>
-
-                {/* Mobile Menu Toggle */}
-                <button
-                    className="md:hidden text-2xl text-gray-700 flex items-center"
-                    onClick={() => setMenuOpen(!menuOpen)}
-                >
-                    {menuOpen ? (
-                        <IoMdClose className="text-3xl text-black" />
-                    ) : (
-                        <IoMdMenu className="text-3xl text-black" />
-                    )}
-                </button>
+                )}
             </div>
 
+            {/* Mobile Menu Toggle */}
+            <button
+                className="md:hidden text-2xl text-gray-700 flex items-center cursor-pointer"
+                onClick={() => setMenuOpen(!menuOpen)}
+            >
+                {menuOpen ? (
+                    <IoMdClose className="text-3xl text-black" />
+                ) : (
+                    <IoMdMenu className="text-3xl text-black" />
+                )}
+            </button>
+        </div>
 
-            {/* Mobile Menu Content */}
-            {menuOpen && (
-                <div className="md:hidden flex flex-col items-center space-y-4 mt-4 bg-white border-t border-gray-200 p-4 shadow-md">
-                    <input
-                        type="text"
-                        placeholder="Enter location..."
-                        value={location}
-                        onChange={(e) => setLocation(e.target.value)}
-                        className="px-4 py-2 w-64 rounded-md bg-gray-100 border border-gray-300 text-black placeholder-gray-500"
-                    />
-                    {/* <input
-                        type="text"
-                        placeholder="Search services..."
-                        value={service}
-                        onChange={(e) => setService(e.target.value)}
-                        className="px-4 py-2 w-64 rounded-md bg-gray-100 border border-gray-300 text-black placeholder-gray-500"
-                    /> */}
-                    <Link
-                        to="/"
-                        className="text-lg text-gray-700 hover:text-blue-600 transition"
-                    >
-                        Home
-                    </Link>
-                    <Link to="/cart" className="relative">
-                        <FaShoppingCart className="text-2xl text-gray-700 hover:text-blue-600 transition" />
-                        {cartItemCount > 0 && (
-                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
-                                {cartItemCount}
-                            </span>
-                        )}
-                    </Link>
-                    {user ? (
-                        <>
-                            <Link
-                                to="/help-center"
-                                className="text-lg text-gray-700 hover:text-blue-600 transition"
-                            >
-                                Help Center
-                            </Link>
-                            <button
-                                onClick={handleLogout}
-                                className="text-lg text-gray-700 hover:text-red-600 transition"
-                            >
-                                Logout
-                            </button>
-                        </>
-                    ) : (
-                        <Link
-                            to="/login"
-                            className="text-lg text-gray-700 hover:text-blue-600 transition"
-                        >
-                            Login
-                        </Link>
+        {/* Mobile Menu Content */}
+        {menuOpen && (
+            <div className="md:hidden flex flex-col items-center space-y-4 mt-4 bg-white border-t border-gray-200 p-4 shadow-md">
+                <input
+                    type="text"
+                    placeholder="Enter location..."
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    className="px-4 py-2 w-64 rounded-md bg-gray-100 border border-gray-300 text-black placeholder-gray-500"
+                />
+                <Link
+                    to="/"
+                    className="text-lg text-gray-700 hover:text-blue-600 transition cursor-pointer"
+                >
+                    Home
+                </Link>
+                <Link to="/cart" className="relative cursor-pointer">
+                    <FaShoppingCart className="text-2xl text-gray-700 hover:text-blue-600 transition" />
+                    {cartItemCount > 0 && (
+                        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                            {cartItemCount}
+                        </span>
                     )}
-                </div>
-            )}
-        </nav>
-    );
+                </Link>
+                {user ? (
+                    <>
+                        <Link
+                            to="/help-center"
+                            className="text-lg text-gray-700 hover:text-blue-600 transition cursor-pointer"
+                        >
+                            Help Center
+                        </Link>
+                        <button
+                            onClick={handleLogout}
+                            className="text-lg text-gray-700 hover:text-red-600 transition cursor-pointer"
+                        >
+                            Logout
+                        </button>
+                    </>
+                ) : (
+                    <Link
+                        to="/login"
+                        className="text-lg text-gray-700 hover:text-blue-600 transition cursor-pointer"
+                    >
+                        Login
+                    </Link>
+                )}
+            </div>
+        )}
+    </nav>
+);
 };
 
 export default Navbar;
