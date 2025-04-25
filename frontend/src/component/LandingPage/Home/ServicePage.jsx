@@ -65,6 +65,15 @@ const ServicePage = () => {
         if (subCategoryId) fetchServices();
     }, [subCategoryId]);
 
+    // Add this useEffect to handle category filtering
+    useEffect(() => {
+        if (selectedCategory && categories[selectedCategory]) {
+            setServices(categories[selectedCategory].services);
+        } else {
+            setServices(allServices);
+        }
+    }, [selectedCategory, categories, allServices]);
+
     const notifySuccess = (msg) => {
         if (!toast.isActive(msg)) {
             toast.success(msg, { toastId: msg });
@@ -102,6 +111,7 @@ const ServicePage = () => {
             ];
         });
     };
+
     const handleIncreaseQuantity = (serviceId) => {
         setCartItems((prevItems) =>
             prevItems.map((item) =>
@@ -214,7 +224,6 @@ const ServicePage = () => {
     return (
         <>
             <Navbar />
-            {/* Toast container goes here */}
             <ToastContainer position="top-right" autoClose={3000} />
             <div className="flex flex-col lg:flex-row p-4 md:p-6 lg:p-10 mt-24 min-h-screen mx-auto">
                 {/* Left Sidebar */}
