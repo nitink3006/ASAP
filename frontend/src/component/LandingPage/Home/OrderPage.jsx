@@ -314,7 +314,7 @@ const ServicePage = () => {
                                 {service.total_amount}
                             </p>
                             {(service.status === "Pending" ||
-                                service.status === "arriving") && (
+                                service.status === "on the way") && (
                                 <Button
                                     className="bg-red-500 text-white mt-2 hover:bg-red-600"
                                     onClick={() => handleCancelService(index)}
