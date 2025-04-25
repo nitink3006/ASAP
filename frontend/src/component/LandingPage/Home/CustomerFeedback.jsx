@@ -62,24 +62,22 @@ const CustomerFeedback = () => {
           pagination={{ clickable: true }}
           className="mt-8"
         >
-            {feedbacks.map((feedback, index) => (
-            <SwiperSlide key={feedback.id}>
-              <div className="bg-gray-100 p-6 rounded-lg shadow-lg hover:shadow-xl transition-all">
-                <div className="flex items-center space-x-4">
-                  {/* <img
-                    src={feedback.image}
-                    alt={feedback.name}
-                    className="w-14 h-14 rounded-full border border-gray-300"
-                  /> */}
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">{feedback.name}</h3>
-                    {getStars(feedback.rating)}
-                  </div>
-                </div>
-                <p className="text-gray-700 mt-4 italic">"{feedback.feedback}"</p>
-              </div>
-            </SwiperSlide>
-          ))}
+            {feedbacks
+  .filter(fb => fb.rating !== null && fb.feedback !== null)
+  .map((feedback, index) => (
+    <SwiperSlide key={feedback.id}>
+      <div className="bg-gray-100 p-6 rounded-lg shadow-lg hover:shadow-xl transition-all">
+        <div className="flex items-center space-x-4">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">{feedback.name}</h3>
+            {getStars(feedback.rating)}
+          </div>
+        </div>
+        <p className="text-gray-700 mt-4 italic">"{feedback.feedback}"</p>
+      </div>
+    </SwiperSlide>
+))}
+
         </Swiper>
       )}
     </div>
