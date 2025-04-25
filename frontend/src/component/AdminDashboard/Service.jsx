@@ -16,6 +16,8 @@ const Service = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [editingService, setEditingService] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [serviceToDelete, setServiceToDelete] = useState(null);
 
   // Improved state for categories and subcategories
   const [categories, setCategories] = useState([]);
@@ -330,6 +332,49 @@ const Service = () => {
     }
   };
 
+  // Start delete process - Show confirmation modal
+  const startDelete = (service) => {
+    setServiceToDelete(service);
+    setIsDeleteModalOpen(true);
+  };
+
+  // Handle delete service
+  const handleDeleteService = async () => {
+    if (!serviceToDelete) return;
+    
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `${Config.API_URL}/service-single/${serviceToDelete.id}/`,
+        {
+          method: "DELETE",
+          headers: { 
+            Authorization: `Token ${token}`,
+            "Content-Type": "application/json"
+          },
+        }
+      );
+
+      if (response.ok) {
+        toast.success("Service deleted successfully!");
+        // Remove from local state
+        setServices(services.filter(srv => srv.id !== serviceToDelete.id));
+        setIsDeleteModalOpen(false);
+        setServiceToDelete(null);
+      } else {
+        const errorData = await response.json();
+        const errorMessage = typeof errorData === 'object'
+          ? JSON.stringify(errorData)
+          : errorData.message || "Failed to delete service";
+        throw new Error(errorMessage);
+      }
+    } catch (error) {
+      handleError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Get filtered subcategories for a category
   const getFilteredSubcategories = (categoryId) => {
     if (!categoryId) return [];
@@ -536,6 +581,7 @@ const Service = () => {
                               <FiEdit2 size={16} />
                             </button>
                             <button
+                              onClick={() => startDelete(srv)}
                               className="bg-red-600 text-white p-2 rounded-md hover:bg-red-700 transition-colors cursor-pointer"
                               title="Delete"
                             >
@@ -689,6 +735,38 @@ const Service = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {isDeleteModalOpen && serviceToDelete && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full m-4">
+            <div className="text-center">
+              <FiTrash2 className="mx-auto text-red-600" size={48} />
+              <h3 className="text-xl font-bold text-gray-900 mt-4">Delete Service</h3>
+              <p className="text-gray-600 my-4">
+                Are you sure you want to delete the service "{serviceToDelete.name}"? 
+                This action cannot be undone.
+              </p>
+            </div>
+            <div className="flex justify-center space-x-4 mt-6">
+              <button
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition cursor-pointer"
+                disabled={loading}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteService}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition cursor-pointer"
+                disabled={loading}
+              >
+                {loading ? "Deleting..." : "Delete"}
+              </button>
+            </div>
           </div>
         </div>
       )}
