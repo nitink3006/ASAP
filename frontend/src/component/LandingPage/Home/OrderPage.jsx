@@ -159,7 +159,7 @@ const ServicePage = () => {
 
     const renderStatus = (status) => {
         switch (status) {
-            case "Arriving":
+            case "on the way":
                 return <span className="text-yellow-500">🚚 Arriving</span>;
             case "Completed":
                 return <span className="text-green-600">✅ Completed</span>;
