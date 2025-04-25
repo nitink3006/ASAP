@@ -159,7 +159,7 @@ const ServicePage = () => {
 
     const renderStatus = (status) => {
         switch (status) {
-            case "on the way":
+            case "On the way":
                 return <span className="text-yellow-500">🚚 Arriving</span>;
             case "Completed":
                 return <span className="text-green-600">✅ Completed</span>;
@@ -314,7 +314,7 @@ const ServicePage = () => {
                                 {service.total_amount}
                             </p>
                             {(service.status === "Pending" ||
-                                service.status === "on the way") && (
+                                service.status === "On the way") && (
                                 <Button
                                     className="bg-red-500 text-white mt-2 hover:bg-red-600"
                                     onClick={() => handleCancelService(index)}
