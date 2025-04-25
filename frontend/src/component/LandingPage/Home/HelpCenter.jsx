@@ -165,88 +165,86 @@ export default function HelpCenter() {
         setExpandedQuestion(expandedQuestion === index ? null : index);
     };
 
-    return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-200 to-gray500 flex items-center justify-center p-6">
-            <div className="max-w-3xl w-full backdrop-blur-lg bg-white/80 border border-[#E0E0E0] shadow-xl rounded-2xl p-6">
-                {!topic ? (
-                    <>
-                        <Link to="/">
-                            <button className="flex items-center text-purple-600 hover:text-purple-400 mb-4 transition">
-                                <FaArrowLeft className="mr-2" /> Back to Home
-                            </button>
-                        </Link>
-                        <h1 className="text-4xl font-bold text--900 mb-6">
-                            How can we help you?
-                        </h1>
-                        <div className="grid sm:grid-cols-1 gap-4">
-                            {helpTopics.map((topic, index) => (
-                                <div
-                                    key={index}
-                                    onClick={() =>
-                                        handleTopicClick(topic.title)
-                                    }
-                                    className="flex items-center justify-between p-5 bg-white/70 backdrop-blur border border-gray-200 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.01] transition-all cursor-pointer"
-                                >
-                                    <div className="flex items-center">
-                                        <div className="text-2xl mr-4">
-                                            {topic.icon}
-                                        </div>
-                                        <span className="text-lg font-medium text-gray-800">
-                                            {topic.title}
-                                        </span>
-                                    </div>
-                                    <FaChevronRight className="text-gray-500" />
-                                </div>
-                            ))}
-                        </div>
-                    </>
-                ) : (
-                    <>
-                        <button
-                            onClick={handleBack}
-                            className="flex items-center text-purple-600 hover:text-purple-400 mb-4 transition"
-                        >
-                            <FaArrowLeft className="mr-2" /> Back to Help Topics
+return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-200 to-gray-500 flex items-center justify-center p-6">
+        <div className="max-w-3xl w-full backdrop-blur-lg bg-white/80 border border-[#E0E0E0] shadow-xl rounded-2xl p-6">
+            {!topic ? (
+                <>
+                    <Link to="/">
+                        <button className="cursor-pointer flex items-center text-purple-600 hover:text-purple-400 mb-4 transition">
+                            <FaArrowLeft className="mr-2" /> Back to Home
                         </button>
-                        <h1 className="text-4xl font-bold text-black mb-6">
-                            {topic}
-                        </h1>
-                        <div className="space-y-4">
-                            {helpData[topic]?.map((faq, index) => (
-                                <div
-                                    key={index}
-                                    className="border border-gray-200 rounded-xl shadow-sm bg-white/90 backdrop-blur transition-all"
-                                >
-                                    <div
-                                        onClick={() => toggleQuestion(index)}
-                                        className="flex justify-between items-center p-5 hover:bg-gray-50 cursor-pointer transition-colors"
-                                    >
-                                        <h3 className="text-lg font-semibold text-gray-800 pr-2">
-                                            {faq.question}
-                                        </h3>
-                                        {expandedQuestion === index ? (
-                                            <FaChevronUp className="text-purple-600" />
-                                        ) : (
-                                            <FaChevronDown className="text-gray-500" />
-                                        )}
+                    </Link>
+                    <h1 className="text-4xl font-bold text-gray-900 mb-6">
+                        How can we help you?
+                    </h1>
+                    <div className="grid sm:grid-cols-1 gap-4">
+                        {helpTopics.map((topic, index) => (
+                            <div
+                                key={index}
+                                onClick={() => handleTopicClick(topic.title)}
+                                className="cursor-pointer flex items-center justify-between p-5 bg-white/70 backdrop-blur border border-gray-200 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.01] transition-all"
+                            >
+                                <div className="flex items-center">
+                                    <div className="text-2xl mr-4">
+                                        {topic.icon}
                                     </div>
-                                    <div
-                                        className={`transition-all duration-300 ease-in-out overflow-hidden ${
-                                            expandedQuestion === index
-                                                ? "max-h-96 opacity-100"
-                                                : "max-h-0 opacity-0"
-                                        }`}
-                                    >
-                                        <div className="p-5 border-t border-gray-200 bg-white text-gray-600">
-                                            <p>{faq.answer}</p>
-                                        </div>
+                                    <span className="text-lg font-medium text-gray-800">
+                                        {topic.title}
+                                    </span>
+                                </div>
+                                <FaChevronRight className="text-gray-500" />
+                            </div>
+                        ))}
+                    </div>
+                </>
+            ) : (
+                <>
+                    <button
+                        onClick={handleBack}
+                        className="cursor-pointer flex items-center text-purple-600 hover:text-purple-400 mb-4 transition"
+                    >
+                        <FaArrowLeft className="mr-2" /> Back to Help Topics
+                    </button>
+                    <h1 className="text-4xl font-bold text-black mb-6">
+                        {topic}
+                    </h1>
+                    <div className="space-y-4">
+                        {helpData[topic]?.map((faq, index) => (
+                            <div
+                                key={index}
+                                className="border border-gray-200 rounded-xl shadow-sm bg-white/90 backdrop-blur transition-all"
+                            >
+                                <div
+                                    onClick={() => toggleQuestion(index)}
+                                    className="cursor-pointer flex justify-between items-center p-5 hover:bg-gray-50 transition-colors"
+                                >
+                                    <h3 className="text-lg font-semibold text-gray-800 pr-2">
+                                        {faq.question}
+                                    </h3>
+                                    {expandedQuestion === index ? (
+                                        <FaChevronUp className="text-purple-600" />
+                                    ) : (
+                                        <FaChevronDown className="text-gray-500" />
+                                    )}
+                                </div>
+                                <div
+                                    className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                                        expandedQuestion === index
+                                            ? "max-h-96 opacity-100"
+                                            : "max-h-0 opacity-0"
+                                    }`}
+                                >
+                                    <div className="p-5 border-t border-gray-200 bg-white text-gray-600">
+                                        <p>{faq.answer}</p>
                                     </div>
                                 </div>
-                            ))}
-                        </div>
-                    </>
-                )}
-            </div>
+                            </div>
+                        ))}
+                    </div>
+                </>
+            )}
         </div>
-    );
+    </div>
+);
 }
