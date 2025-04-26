@@ -26,35 +26,41 @@ const Chatbot = () => {
     return () => clearTimeout(bounceTimer);
   }, []);
 
-  useEffect(() => {
-    if (!user) {
-      setMessages([{ text: "Please login to continue with ASAP Assistant.", sender: "bot" }]);
-    }
-  }, [user]);
 
-  const handleSend = async () => {
-    if (!input.trim() || !user) return;
 
-    const newMessages = [...messages, { text: input, sender: "user" }];
-    setMessages(newMessages);
-    setInput("");
-    setLoading(true);
+const handleSend = async () => {
+  if (!input.trim()) return;
 
-    try {
-      const response = await axios.post(`${Config.API_URL}/ai-assistant/`, {
-        user_id: userId,
-        query: input,
-      });
+  const newMessages = [...messages, { text: input, sender: "user" }];
+  setMessages(newMessages);
+  setInput("");
+  setLoading(true);
 
-     const botReply = response.data?.reply || "Sorry, no response from the assistant.";
-      setMessages([...newMessages, { text: botReply, sender: "bot" }]);
-    } catch (error) {
-      console.error("API error:", error);
-      setMessages([...newMessages, { text: "Something went wrong. Please try again later.", sender: "bot" }]);
-    } finally {
+  if (!user) {
+    // After a little delay like a real bot thinking
+    setTimeout(() => {
+      setMessages([...newMessages, { text: "Please login to continue with ASAP Assistant.", sender: "bot" }]);
       setLoading(false);
-    }
-  };
+    }, 1000); // 1 second delay for thinking effect
+    return;
+  }
+
+  try {
+    const response = await axios.post(`${Config.API_URL}/ai-assistant/`, {
+      user_id: userId,
+      query: input,
+    });
+
+    const botReply = response.data?.reply || "Sorry, no response from the assistant.";
+    setMessages([...newMessages, { text: botReply, sender: "bot" }]);
+  } catch (error) {
+    console.error("API error:", error);
+    setMessages([...newMessages, { text: "Something went wrong. Please try again later.", sender: "bot" }]);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
@@ -105,12 +111,12 @@ const Chatbot = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
-              disabled={loading || !user}
+              disabled={loading}
             />
             <button
               onClick={handleSend}
               className="bg-gray-700 cursor-pointer text-white p-3 rounded-xl hover:scale-105 transition-transform"
-              disabled={loading || !user}
+              disabled={loading}
             >
               <FiSend size={20} />
             </button>
