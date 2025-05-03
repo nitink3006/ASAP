@@ -115,6 +115,7 @@ const [loading, setLoading] = useState(false); // or isSendingPhoneOtp, isSendin
      try {
        setLoading(true);
        await confirmationResult.confirm(otp);
+       setPhoneVerified(true);
        toast.success("Phone verified successfully!");
       //  await handleLogin({ preventDefault: () => {} });
      } catch (err) {
@@ -304,121 +305,128 @@ const [loading, setLoading] = useState(false); // or isSendingPhoneOtp, isSendin
   </div>
 
   {/* Phone Number & OTP Verification */}
-  {!phoneVerified && (
   <div className="mt-4">
-    <label className="block text-gray-700 font-medium mb-2">Phone Number</label>
-    <div className="flex flex-wrap items-center gap-5">
-      {/* Phone Input */}
-      <div className="flex items-center border rounded-lg p-2 bg-gray-100">
-        <FaPhone className="text-gray-500 mr-2" />
-        <input
-          type="text"
-          name="phone"
-          value={formData.phone}
-          onChange={handleChange}
-          placeholder="Enter your number"
-          className="w-36 outline-none bg-transparent"
-          required
-        />
-      </div>
-
-      {/* Send OTP Button */}
-      <button
-        type="button"
-        onClick={handleSendOtp}
-        disabled={isSendingPhoneOtp || formData.phone.length !== 10}
-        className={`text-sm px-3 py-2 rounded ${
-          isSendingPhoneOtp || formData.phone.length !== 10
-            ? "bg-gray-500 text-white cursor-pointer"
-            : "bg-gray-700 text-white cursor-pointer"
-        }`}
-      >
-        {isSendingPhoneOtp ? "Sending OTP..." : "Send OTP"}
-      </button>
-
-      <div className="flex ml-12  gap-2">
+  <label className="block text-gray-700 font-medium mb-2">Phone Number</label>
+  <div className="flex flex-wrap items-center gap-5">
+    {/* Phone Input */}
+    <div className={`flex items-center border rounded-lg p-2 ${phoneVerified ? "bg-green-100" : "bg-gray-100"}`}>
+      <FaPhone className="text-gray-500 mr-2" />
       <input
         type="text"
-        value={otp}
-        onChange={(e) => setOtp(e.target.value)}
-        placeholder="Enter OTP"
-        maxLength={6}
-        className="border border-gray-300 rounded px-3 py-2 w-28 focus:outline-none focus:ring-2 focus:ring-blue-300"
+        name="phone"
+        value={formData.phone}
+        onChange={handleChange}
+        placeholder="Enter your number"
+        className="w-36 outline-none bg-transparent"
+        disabled={phoneVerified}
+        required
       />
-
-      {/* Verify Button */}
-      <button
-        type="button"
-        onClick={handleVerifyOtp}
-        disabled={!otp}
-        className={`px-3 py-2 rounded text-white cursor-pointer ${
-          otp ? "bg-gray-600 hover:bg-gray-700" : "bg-gray-400 cursor-not-allowed"
-        }`}
-      >
-        Verify
-      </button>
-      </div>
     </div>
+
+    {/* Show OTP & buttons only if not verified */}
+    {!phoneVerified && (
+      <>
+        {/* Send OTP Button */}
+        <button
+          type="button"
+          onClick={handleSendOtp}
+          disabled={isSendingPhoneOtp || formData.phone.length !== 10}
+          className={`text-sm px-3 py-2 rounded ${
+            isSendingPhoneOtp || formData.phone.length !== 10
+              ? "bg-gray-500 text-white cursor-pointer"
+              : "bg-gray-700 text-white cursor-pointer"
+          }`}
+        >
+          {isSendingPhoneOtp ? "Sending OTP..." : "Send OTP"}
+        </button>
+
+        {/* OTP Input and Verify Button */}
+        <div className="flex ml-12 gap-2">
+          <input
+            type="text"
+            value={otp}
+            onChange={(e) => setOtp(e.target.value)}
+            placeholder="Enter OTP"
+            maxLength={6}
+            className="border border-gray-300 rounded px-3 py-2 w-28 focus:outline-none focus:ring-2 focus:ring-blue-300"
+          />
+
+          <button
+            type="button"
+            onClick={handleVerifyOtp}
+            disabled={!otp}
+            className={`px-3 py-2 rounded text-white cursor-pointer ${
+              otp ? "bg-gray-600 hover:bg-gray-700" : "bg-gray-400 cursor-not-allowed"
+            }`}
+          >
+            Verify
+          </button>
+        </div>
+      </>
+    )}
   </div>
-)}
+</div>
+
 
 
   {/* Email OTP Verification */}
-  {!emailVerified && (
   <div className="mt-4">
-    <label className="block text-gray-700 font-medium mb-2">Email</label>
-    <div className="flex flex-wrap items-center gap-2">
-      {/* Email Input */}
-      <div className="flex items-center border rounded-lg p-2 bg-gray-100">
-        <input
-          type="text"
-          placeholder="Enter your email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          className="w-48 bg-transparent outline-none"
-        />
-      </div>
-
-      {/* Send Email OTP Button */}
-      <button
-        type="button"
-        onClick={handleSendEmailOtp}
-        disabled={isSendingEmailOtp}
-        className={`text-sm px-3 py-2 rounded ${
-          isSendingEmailOtp
-            ? "bg-gray-400 text-white cursor-pointer"
-            : "bg-gray-700 text-white cursor-pointer"
-        }`}
-      >
-        {isSendingEmailOtp ? "Sending OTP..." : "Send OTP"}
-      </button>
-
-<div className="flex ml-12  gap-2">
+  <label className="block text-gray-700 font-medium mb-2">Email</label>
+  <div className="flex flex-wrap items-center gap-2">
+    {/* Email Input */}
+    <div className={`flex items-center border rounded-lg p-2 ${emailVerified ? "bg-green-100" : "bg-gray-100"}`}>
       <input
         type="text"
-        value={emailOtp}
-        onChange={(e) => setEmailOtp(e.target.value)}
-        placeholder="Enter OTP"
-maxLength={6}
-        className="border border-gray-300 rounded px-3 py-2 w-28 focus:outline-none focus:ring-2 focus:ring-gray-300"
+        placeholder="Enter your email"
+        name="email"
+        value={formData.email}
+        onChange={handleChange}
+        className="w-48 bg-transparent outline-none"
+        disabled={emailVerified}
       />
-
-      {/* Verify Button */}
-      <button
-  type="button"
-  onClick={handleVerifyEmailOtp}
-  disabled={emailOtp.length !== 6}
-  className={`px-3 py-2 rounded text-white cursor-pointer ${
-    emailOtp.length === 6 ? "bg-gray-700" : "bg-gray-400 cursor-not-allowed"
-  }`}
->
-  Verify
-</button>
-      </div>
     </div>
+
+    {/* Buttons visible only if not verified */}
+    {!emailVerified && (
+      <>
+        <button
+          type="button"
+          onClick={handleSendEmailOtp}
+          disabled={isSendingEmailOtp}
+          className={`text-sm px-3 py-2 rounded ${
+            isSendingEmailOtp
+              ? "bg-gray-400 text-white cursor-pointer"
+              : "bg-gray-700 text-white cursor-pointer"
+          }`}
+        >
+          {isSendingEmailOtp ? "Sending OTP..." : "Send OTP"}
+        </button>
+
+        <div className="flex ml-12 gap-2">
+          <input
+            type="text"
+            value={emailOtp}
+            onChange={(e) => setEmailOtp(e.target.value)}
+            placeholder="Enter OTP"
+            maxLength={6}
+            className="border border-gray-300 rounded px-3 py-2 w-28 focus:outline-none focus:ring-2 focus:ring-gray-300"
+          />
+          <button
+            type="button"
+            onClick={handleVerifyEmailOtp}
+            disabled={emailOtp.length !== 6}
+            className={`px-3 py-2 rounded text-white cursor-pointer ${
+              emailOtp.length === 6 ? "bg-gray-700" : "bg-gray-400 cursor-not-allowed"
+            }`}
+          >
+            Verify
+          </button>
+        </div>
+      </>
+    )}
   </div>
-)}
+</div>
+
 
 
   {/* Submit Button */}
