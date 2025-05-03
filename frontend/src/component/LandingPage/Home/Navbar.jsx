@@ -219,7 +219,7 @@ const Navbar = () => {
                             onClick={() => setDropdownOpen(!dropdownOpen)}
                             className="relative flex items-center justify-center w-10 h-10 bg-gray-300 rounded-full text-lg font-semibold text-black cursor-pointer"
                         >
-                            {user?.user?.[0]?.name?.charAt(0)?.toUpperCase() || ""}
+                            {user?.user?.[0]?.name?.charAt(0)?.toUpperCase() || user?.customer_data?.name?.charAt(0)?.toUpperCase() || "S"}
                         </button>
                         {dropdownOpen && (
                             <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-300 rounded-md shadow-lg py-2 text-black">

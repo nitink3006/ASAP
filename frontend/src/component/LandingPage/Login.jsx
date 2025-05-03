@@ -29,15 +29,45 @@ const Login = () => {
       setUserType("admin");
       setError("");
     } else if (/^\d{10}$/.test(input)) {
-      setUserType("user");
+      setUserType("phone");
       setError("");
-    } else {
+    } else if(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input)){
+      setUserType("email");
+      setError("");
+    }
+    else {
       setUserType(null);
-      setError("Kindly login with your phone number.");
+      setError("Kindly enter valid email or phone number.");
     }
   };
   
-
+  const handleSendEmailOtp = async () => {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailOrPhone)) {
+      toast.error("Enter a valid email.");
+      return;
+    }
+  
+    try {
+      setLoading(true);
+      const res = await fetch(`${Config.API_URL}/send-otp/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: emailOrPhone }),
+      });
+  
+      const data = await res.json();
+      if (res.ok) {
+        toast.success("OTP sent to your email.");
+      } else {
+        toast.error(data.message || "Failed to send OTP.");
+      }
+    } catch (err) {
+      toast.error("Error sending email OTP.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -50,6 +80,7 @@ const Login = () => {
         body: JSON.stringify({
           username: emailOrPhone,
           password: userType === "admin" ? password : "none",
+          otp: userType === "email" ? otp : otp,
         }),
       });
 
@@ -206,39 +237,52 @@ const Login = () => {
               </div>
             )}
 
-            {userType === "user" && !confirmationResult && (
-              <button
-                type="button"
-                onClick={handleSendOtp}
-                className="w-full bg-gray-700 cursor-pointer text-white py-2 rounded-lg font-semibold hover:bg-gray-800 transition duration-200"
-                disabled={loading}
-              >
-                {loading ? "Sending OTP..." : "Send OTP"}
-              </button>
-            )}
+{userType === "phone" && !confirmationResult && (
+  <button
+    type="button"
+    onClick={handleSendOtp}
+    className="w-full bg-gray-700 text-white py-2 mt-2 rounded-lg cursor-pointer"
+  >
+    {loading ? "Sending OTP..." : "Send OTP to Phone"}
+  </button>
+)}
 
-            {confirmationResult && (
-              <div className="mt-4">
-                <label className="block text-gray-700 font-medium mb-2">
-                  Enter OTP
-                </label>
-                <input
-                  type="text"
-                  className="w-full border rounded-lg p-2 bg-gray-100 outline-none"
-                  placeholder="Enter OTP"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                />
-                <button
-                  type="button"
-                  onClick={handleVerifyOtp}
-                  className="w-full bg-gray-700 text-white cursor-pointer py-2 mt-4 rounded-lg font-semibold hover:bg-gray-800 transition duration-200"
-                  disabled={loading}
-                >
-                  {loading ? "Verifying..." : "Verify OTP"}
-                </button>
-              </div>
-            )}
+{userType === "email" && !confirmationResult && (
+  <button
+    type="button"
+    onClick={handleSendEmailOtp}
+    className="w-full bg-gray-700 text-white py-2 mt-2 rounded-lg cursor-pointer"
+  >
+    {loading ? "Sending OTP..." : "Send OTP to Email"}
+  </button>
+)}
+
+{(userType === "phone" || userType === "email") && (
+  <div className="mt-4">
+    <label className="block text-gray-700 font-medium mb-2">
+      Enter OTP
+    </label>
+    <input
+      type="text"
+      className="w-full border rounded-lg p-2 bg-gray-100 outline-none"
+      placeholder="Enter OTP"
+      value={otp}
+      onChange={(e) => setOtp(e.target.value)}
+    />
+    <button
+      type="button"
+      onClick={
+        userType === "phone" ? handleVerifyOtp : async () => {
+          await handleLogin({ preventDefault: () => {} });
+        }
+      }
+      className="w-full bg-gray-700 text-white py-2 mt-4 rounded-lg cursor-pointer"
+      disabled={loading}
+    >
+      {loading ? "Verifying..." : "Verify OTP"}
+    </button>
+  </div>
+)}
 
             {userType === "admin" && (
               <button
