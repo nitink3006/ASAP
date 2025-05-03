@@ -196,13 +196,13 @@ const Login = () => {
           >
             <div className="mb-4">
               <label className="block text-gray-700 font-medium mb-2">
-                Phone
+                Phone/Email
               </label>
               <div className="flex items-center border rounded-lg p-2 bg-gray-100">
                 <FaUser className="text-gray-500 mr-2" />
                 <input
                   type="text"
-                  placeholder="Enter your phone Number"
+                  placeholder="Enter your phone Number or Email"
                   className="w-full outline-none bg-transparent"
                   value={emailOrPhone}
                   onChange={handleInputChange}
