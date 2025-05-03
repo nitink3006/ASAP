@@ -80,7 +80,7 @@ const Login = () => {
         body: JSON.stringify({
           username: emailOrPhone,
           password: userType === "admin" ? password : "none",
-          otp: userType === "email" ? otp : otp,
+          otp: userType === "email" ? otp : "none",
         }),
       });
 
