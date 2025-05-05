@@ -162,14 +162,37 @@ const [loading, setLoading] = useState(false); // or isSendingPhoneOtp, isSendin
       alert("An error occurred. Please try again.");
     }
   };
-  const handleVerifyEmailOtp = () => {
-    if (emailOtp.length === 6) {
-      setEmailVerified(true);
-      toast.success("Email verified!");
-    } else {
+  const handleVerifyEmailOtp = async () => {
+    if (emailOtp.length !== 6) {
       toast.error("Invalid Email OTP");
+      return;
+    }
+  
+    try {
+      setLoading(true);
+      const response = await fetch(`${Config.API_URL}/send-otp-email/?otp=${emailOtp}`);
+  
+      if (!response.ok) {
+        throw new Error("Verification failed");
+      }
+  
+      const data = await response.json();
+      console.log("Email OTP verification response:", data);
+  
+      if (data.message === "email ok.") {
+        setEmailVerified(true);
+        toast.success("Email verified!");
+      } else {
+        toast.error(data.message || "Invalid Email OTP");
+      }
+    } catch (err) {
+      console.error("Email OTP verification error:", err);
+      toast.error("Failed to verify email OTP.");
+    } finally {
+      setLoading(false);
     }
   };
+  
   
   const handleSendEmailOtp = async () => {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
@@ -179,7 +202,7 @@ const [loading, setLoading] = useState(false); // or isSendingPhoneOtp, isSendin
   
     try {
       setLoading(true);
-      const res = await fetch(`${Config.API_URL}/send-otp/`, {
+      const res = await fetch(`${Config.API_URL}/send-otp-email/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: formData.email }),
@@ -307,9 +330,9 @@ const [loading, setLoading] = useState(false); // or isSendingPhoneOtp, isSendin
   {/* Phone Number & OTP Verification */}
   <div className="mt-4">
   <label className="block text-gray-700 font-medium mb-2">Phone Number</label>
-  <div className="flex flex-wrap items-center gap-5">
+  <div className="flex flex-wrap items-center gap-3">
     {/* Phone Input */}
-    <div className={`flex items-center border rounded-lg p-2 ${phoneVerified ? "bg-green-100" : "bg-gray-100"}`}>
+    <div className={`flex w-52 items-center border rounded-lg p-2 ${phoneVerified ? "bg-green-100" : "bg-gray-100"}`}>
       <FaPhone className="text-gray-500 mr-2" />
       <input
         type="text"
@@ -394,8 +417,8 @@ const [loading, setLoading] = useState(false); // or isSendingPhoneOtp, isSendin
           onClick={handleSendEmailOtp}
           disabled={isSendingEmailOtp}
           className={`text-sm px-3 py-2 rounded ${
-            isSendingEmailOtp
-              ? "bg-gray-400 text-white cursor-pointer"
+            isSendingPhoneOtp || formData.phone.length !== 10
+              ? "bg-gray-500 text-white cursor-pointer"
               : "bg-gray-700 text-white cursor-pointer"
           }`}
         >
@@ -416,7 +439,7 @@ const [loading, setLoading] = useState(false); // or isSendingPhoneOtp, isSendin
             onClick={handleVerifyEmailOtp}
             disabled={emailOtp.length !== 6}
             className={`px-3 py-2 rounded text-white cursor-pointer ${
-              emailOtp.length === 6 ? "bg-gray-700" : "bg-gray-400 cursor-not-allowed"
+              otp ? "bg-gray-600 hover:bg-gray-700" : "bg-gray-400 cursor-not-allowed"
             }`}
           >
             Verify
