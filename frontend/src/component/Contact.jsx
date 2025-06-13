@@ -54,7 +54,7 @@ const Contact = () => {
             <label className="block mb-2">Enter mobile Number</label>
             <div className="flex mb-5">
               <select className="p-2 border border-gray-300 rounded-l">
-                <option value="91">+91</option>
+                <option value="+1">+1</option>
               </select>
               <input type="tel" name="mobile_no" value={formData.mobile_no} onChange={handleChange} required className="w-full p-2 border border-gray-300 border-l-0 rounded-r" placeholder="mobile_no Number" />
             </div>
